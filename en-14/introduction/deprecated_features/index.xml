@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Deprecated Features on Cray System Management (CSM)</title>
+    <link>/docs-csm/en-14/introduction/deprecated_features/</link>
+    <description>Recent content in Deprecated Features on Cray System Management (CSM)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    <lastBuildDate>Mon, 17 Jul 2023 03:16:28 +0000</lastBuildDate><atom:link href="/docs-csm/en-14/introduction/deprecated_features/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>CAPMC Deprecation Notice</title>
+      <link>/docs-csm/en-14/introduction/deprecated_features/capmc_deprecation_notice/</link>
+      <pubDate>Mon, 17 Jul 2023 03:16:27 +0000</pubDate>
+      
+      <guid>/docs-csm/en-14/introduction/deprecated_features/capmc_deprecation_notice/</guid>
+      <description>CAPMC Deprecation Notice CAPMC enters final life cycle before deletion PCS v1 has been released to production and indicated the beginning of the final life cycle for CAPMC. CAPMC will continue to co-exist with PCS until its final deletion. CAPMC is slated to be permanently removed from the system beginning with the first release of software in 2024. Please begin to migrate to PCS.
+Deprecated Features in CSM 1.0 Many CAPMC v1 REST API and CLI features are being deprecated as part of CSM version 1.</description>
+    </item>
+    
+    <item>
+      <title>Deprecated Features</title>
+      <link>/docs-csm/en-14/introduction/deprecated_features/readme/</link>
+      <pubDate>Mon, 17 Jul 2023 03:16:27 +0000</pubDate>
+      
+      <guid>/docs-csm/en-14/introduction/deprecated_features/readme/</guid>
+      <description>Deprecated Features This page lists deprecated features in CSM. They are no longer being actively developed and are planned to be removed in a future CSM release.
+When a feature is first deprecated, it may not yet be announced in which CSM version that feature will be fully removed. When such a decision has been made, that information will be available on this page. For any deprecated features listed on this page that do not yet have an announced CSM version for their planned removal, customers are still strongly encouraged to make plans to migrate away from the deprecated feature.</description>
+    </item>
+    
+  </channel>
+</rss>

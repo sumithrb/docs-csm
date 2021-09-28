@@ -1,0 +1,26 @@
+{
+    "inventoryHardwareFilter": {
+        "manufacturer": "cray"
+    },
+    "stateComponentFilter": {
+        "deviceTypes": [
+          "nodeBMC"
+        ]
+    },
+    "targetFilter": {
+        "targets": [
+          "Node0.ManagementEthernet",
+          "Node1.ManagementEthernet",
+          "Node2.ManagementEthernet",
+          "Node3.ManagementEthernet"
+        ]
+    },
+    "command": {
+        "version": "latest",
+        "tag": "default",
+        "overrideDryrun": false,
+        "restoreNotPossibleOverride": true,
+        "timeLimit": 1000,
+        "description": "Upgrade of Node Management Ethernet"
+    }
+}

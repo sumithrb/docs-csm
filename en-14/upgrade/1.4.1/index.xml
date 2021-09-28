@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>1.4.1 on Cray System Management (CSM)</title>
+    <link>/docs-csm/en-14/upgrade/1.4.1/</link>
+    <description>Recent content in 1.4.1 on Cray System Management (CSM)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    <lastBuildDate>Mon, 17 Jul 2023 03:19:05 +0000</lastBuildDate><atom:link href="/docs-csm/en-14/upgrade/1.4.1/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>1.4.1 Patch Installation Instructions</title>
+      <link>/docs-csm/en-14/upgrade/1.4.1/readme/</link>
+      <pubDate>Mon, 17 Jul 2023 03:18:57 +0000</pubDate>
+      
+      <guid>/docs-csm/en-14/upgrade/1.4.1/readme/</guid>
+      <description>CSM 1.4.1 Patch Installation Instructions Introduction This document guides an administrator through the patch update to Cray Systems Management v1.4.1 from v1.4.0. If upgrading from CSM v1.3.4 directly to v1.4.1, follow the procedures described in Upgrade CSM instead.
+Bug Fixes and Improvements  Updates to the bos API specification Refactoring of the hms-rts chart for deployment of multiple back ends Allow the power control service pcs to be able to report power status of RTS management switches Support adding types of MgmtHLSwitch and CDUMgmtSwitch to vault to be able to set their SNMP credentials Support for discovering RTS switches and updating their data in hardware state manager Generation of API docs from swagger files in the Cray-HPE codebase CVE fixes against the metacontroller:v4.</description>
+    </item>
+    
+  </channel>
+</rss>

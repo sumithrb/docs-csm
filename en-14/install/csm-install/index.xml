@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>-install on Cray System Management (CSM)</title>
+    <link>/docs-csm/en-14/install/csm-install/</link>
+    <description>Recent content in -install on Cray System Management (CSM)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    <lastBuildDate>Mon, 17 Jul 2023 03:19:03 +0000</lastBuildDate><atom:link href="/docs-csm/en-14/install/csm-install/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Installation</title>
+      <link>/docs-csm/en-14/install/csm-install/readme/</link>
+      <pubDate>Mon, 17 Jul 2023 03:16:22 +0000</pubDate>
+      
+      <guid>/docs-csm/en-14/install/csm-install/readme/</guid>
+      <description>CSM Installation High-level overview of CSM install In the Pre-installation section of the install, information about the HPE Cray EX system and the site is used to prepare the configuration payload. An initial node called the PIT node is then set up to bootstrap the installation process. It is called the PIT node because the Pre-Install Toolkit is installed there. The management network switches are also configured in this section.</description>
+    </item>
+    
+  </channel>
+</rss>
