@@ -2,8 +2,7 @@
 
 - Italics: `*word*` *word*
 - Bold: `**bold**` **bold**
-- Extra bold: `***extrabold***` ***extrabold***
-- Underscore: `__underscored__` __underscored__
+- Bolditalics: `***bolditalics***` ***bolditalics***
 - Emojis
   - `:warning:` :warning:
   - `:no_entry_sign:` :no_entry_sign:
