@@ -120,7 +120,6 @@ log measurements statistics tracking
 logchange 1.0
 makestep 0.1 3
 '
-
 json_from_file() {
   # convert bash array to csv
   local sed_cmd="sed -e 's/\s\+/,/g'"
@@ -151,15 +150,15 @@ while :
 do
   case "$1" in
     -p | --peers )
-      peers="$2"
+      PEERS="$2"
       shift 2
       ;;
     -s | --servers )
-      servers="$2"
+      SERVERS="$2"
       shift 2
       ;;
     -c | --cidrs)
-      cidrs="$2"
+      CIDRS="$2"
       shift 2
       ;;
     -f | --from_file)
@@ -182,4 +181,4 @@ do
 done
 
 # Runs only if passing in peers,servers,cidrs on the command line (not from file)
-create_json ${cidrs} ${peers} ${servers}
+create_json ${CIDRS} ${PEERS} ${SERVERS}
