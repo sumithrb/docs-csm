@@ -36,7 +36,7 @@ help() {
              [ -h | --help  ]
 
 Example: ./ntp-csi-input.sh --peers ncn-w001,ncn-w002,ncn-w003,ncn-s001 \\
-                            --servers ncn-m001,lumintp.csc.fi \\
+                            --servers ncn-m001,ntp.example.com \\
                             --cidrs 10.120.0.0/14,10.106.0.0/17,10.252.0.0/17
 
 Example: ./ntp-csi-input.sh --from_file my_config
