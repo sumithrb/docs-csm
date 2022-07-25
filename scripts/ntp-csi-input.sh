@@ -23,7 +23,7 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 
-SHORT=p:,s:,c:,f:,help
+SHORT=p:,s:,c:,f:,h
 LONG=peers:,servers:,cidrs:,from_file:,help
 OPTS=$(getopt --alternative --name ntp --options $SHORT --longoptions $LONG -- "$@")
 
