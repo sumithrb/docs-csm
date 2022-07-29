@@ -254,3 +254,5 @@ while true; do
         sleep 10
     fi
 done
+
+ok_report
