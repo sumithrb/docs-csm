@@ -235,7 +235,7 @@ while true; do
             break;
         fi
 
-        if [[ "${phase}" == "Failed" ]]; then
+         if [[ "${phase}" == "Failed" ]]; then
             echo "Workflow in Failed state, Retry ..."
             curl -sk -XPUT -H "Authorization: Bearer $(getToken)" "${baseUrl}/apis/nls/v1/workflows/${workflow}/retry" -d '{}'
         fi
