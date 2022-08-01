@@ -20,13 +20,13 @@
 <meta name="argo-automation" content="com.hpe.csm.upgrade.stage2.2"/>
 <meta name="baseline" content="2h" />
 
-## Stage 2.2
+## Stage 2.2 {automated=true argo="com.hpe.csm.upgrade.stage2.2" baseline="2h"}
 
 1. (`ncn-m001#`) Run `ncn-upgrade-worker-nodes.sh` for `ncn-w001`.
 
    Follow output of the script carefully. The script will pause for manual interaction.
 
-   <meta name="script-automation" content="target=ncn_master, param_workerNodeHost=str"/>
+   <div name="script-automation" content="target=ncn_master, param_workerNodeHost=str"/>
    
    ```bash
    /usr/share/doc/csm/upgrade/scripts/upgrade/ncn-upgrade-worker-nodes.sh ${workerNodeHost}
