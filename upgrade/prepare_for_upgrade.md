@@ -18,8 +18,7 @@ Before beginning an upgrade to a new version of CSM, there are a few things to d
         **Important:** SDU takes about 15 minutes to run on a small system \(longer for large systems\).
 
         ```bash
-        sdu --scenario triage --start_time '-4 hours' \
-        --reason "saving state before powerdown/up"
+        sdu --scenario triage --start_time '-4 hours' --reason "saving state before powerdown/up"
         ```
 
         Refer to the HPE Cray EX System Diagnostic Utility (SDU) Administration Guide for more information and troubleshooting steps.
@@ -87,17 +86,17 @@ Before beginning an upgrade to a new version of CSM, there are a few things to d
    for Lustre health. Here are a few commands which could be used to validate Lustre health. This example
    is for a ClusterStor providing the `cls01234` filesystem.
 
-   1. SSH to the primary management node.
+   1. (`remote#`) SSH to the primary management node.
       For example, on system `cls01234`.
 
       ```bash
-      remote$ ssh -l admin cls01234n000.systemname.com
+      ssh -l admin cls01234n000.systemname.com
       ```
 
-   1. Check that the shared storage targets are available for the management nodes.
+   1. (`cls01234n000#`) Check that the shared storage targets are available for the management nodes.
 
       ```bash
-      [n000]$ pdsh -g mgmt cat /proc/mdstat | dshbak -c
+      pdsh -g mgmt cat /proc/mdstat | dshbak -c
       ```
 
       Example output:
@@ -125,18 +124,18 @@ Before beginning an upgrade to a new version of CSM, there are a few things to d
       unused devices: <none>
       ```
 
-   1. Check HA status.
+   1. (`cls01234n000#`) Check HA status.
 
       ```bash
-      [n000]$ sudo crm_mon -1r
+      sudo crm_mon -1r
       ```
 
       The output indicates whether all resources are started and balanced between two nodes.
 
-   1. Check the status of the nodes.
+   1. (`cls01234n000#`) Check the status of the nodes.
 
       ```bash
-      [n000]# pdsh -a date
+      pdsh -a date
       ```
 
       Example output:
@@ -152,17 +151,13 @@ Before beginning an upgrade to a new version of CSM, there are a few things to d
       cls01234n005: Thu Aug 7 01:29:28 PDT 2014
       ```
 
-   1. Check the health of the Lustre file system.
+   1. (`cls01234n000#`) Check the health of the Lustre file system.
 
       ```bash
-      [n000]# cscli csinfo
-      [n000]# cscli show_nodes
-      [n000]# cscli fs_info
+      cscli csinfo
+      cscli show_nodes
+      cscli fs_info
       ```
 
-1. Optional - Create `rbd` device to provide space for the CSM release tarball.
-
-    See [Create a storage pool](../operations/utility_storage/Alternate_Storage_Pools.md#create-a-storage-pool)
-    and [Create and map an `rbd` device](../operations/utility_storage/Alternate_Storage_Pools.md#create-and-map-an-rbd-device).
-
-After completing the above steps, proceed to [Upgrade Management Nodes and CSM Services](README.md#2-upgrade-management-nodes-and-csm-services).
+After completing the above steps, proceed to
+[Upgrade Management Nodes and CSM Services](README.md#2-upgrade-management-nodes-and-csm-services).

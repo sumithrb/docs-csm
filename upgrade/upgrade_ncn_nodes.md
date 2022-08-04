@@ -8,17 +8,6 @@ mentioned explicitly on this page, see [resource material](resource_material/REA
 
 ## Important Notes
 
-### Bifurcated CAN
-
-A major feature of CSM 1.2 is the Bifurcated CAN (BICAN). The BICAN is designed to separate administrative network traffic from user network traffic. For more information, see the [BICAN Summary](../operations/network/management_network/bican_technical_summary.md). Review the BICAN Summary before continuing with the CSM 1.2 upgrade.
-
-For detailed BICAN documentation, see the [BICAN Technical Details](../operations/network/management_network/bican_technical_details.md) page.
-
-### The SMA Grafana service is temporarily inaccessible during the upgrade.
-
-  During stage 3 of the CSM 1.2 upgrade, the SMA Grafana service will become inaccessible at its previous DNS location. It will
-  remain inaccessible until the upgrade to SMA 1.6.x is applied. This is because of a change in DNS names for the service.
-
 ### Service request adjustments are needed for small systems.
 
   - For systems with only three worker nodes (typically Testing and  Development Systems (TDS)), prior to proceeding with this upgrade, CPU limits **MUST** be
