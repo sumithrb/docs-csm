@@ -17,8 +17,6 @@
 
 1. Repeat the previous step for each other master node **excluding `ncn-m001`**, one at a time.
 
-<meta name="argo-automation" content="com.hpe.csm.upgrade.stage2.2"/>
-<meta name="baseline" content="2h" />
 
 ## Stage 2.2 {automated=true argo="com.hpe.csm.upgrade.stage2.2" baseline="2h"}
 
@@ -26,13 +24,25 @@
 
    Follow output of the script carefully. The script will pause for manual interaction.
 
-   <div name="script-automation" content="target=ncn_master, param_workerNodeHost=str"/>
-   
+    <div name="argo-automation" content="com.hpe.csm.upgrade.stage2.2" />
+    <div name="baseline" content="2h" />
+
    ```bash
    /usr/share/doc/csm/upgrade/scripts/upgrade/ncn-upgrade-worker-nodes.sh ${workerNodeHost}
    ```
 
    > **`NOTE`** The root password for the node may need to be reset after it is rebooted.
+
+    ---
+    argo-automation:
+        content: com.hpe.csm.upgrade.stage2.2
+    baseline:
+        time: 2h
+    ---
+   
+   ```bash
+   /usr/share/doc/csm/upgrade/scripts/upgrade/ncn-upgrade-worker-nodes.sh ${workerNodeHost}
+   ```
 
 1. Repeat the previous steps for each other worker node, one at a time.
 
@@ -48,9 +58,6 @@
 >```
 >
 >>
-
-<meta name="manual" />
-<meta name="baseline" content="1h" />
 
 ## Stage 2.3
 
@@ -105,6 +112,8 @@ upgrade procedure pivots to use `ncn-m002` as the new "stable node", in order to
    /usr/share/doc/csm/upgrade/scripts/upgrade/ncn-upgrade-master-nodes.sh ncn-m001
    ```
 
+<div name="argo-automation" content="com.hpe.csm.upgrade.stage2.rest">
+
 ## Stage 2.4
 
 Run the following command to complete the upgrade of the `weave` and `multus` manifest versions:
@@ -128,6 +137,8 @@ Complete the Kubernetes upgrade. This script will restart several pods on each m
 ```bash
 /usr/share/doc/csm/upgrade/scripts/k8s/upgrade_control_plane.sh
 ```
+
+</div>
 
 > **`NOTE`**: `kubelet` has been upgraded already, ignore the warning to upgrade it.
 
