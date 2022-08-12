@@ -20,20 +20,19 @@ For wiping Linux on an NCN with a previously installed OS, the [basic wipe](#bas
 
 ## Topics
 
-* [Basic Wipe](#basic-wipe)
-* [Advanced Wipe](#advanced-wipe)
-* [Full Wipe](#full-wipe)
+* [Basic wipe](#basic-wipe)
+* [Advanced wipe](#advanced-wipe)
+* [Full wipe](#full-wipe)
 
-<a name="basic-wipe"></a>
-
-## Basic Wipe
+## Basic wipe
 
 This wipe erases the magic bits on the disk to prevent them from being recognized and making them ready for deployment, as well as removing the common volume groups.
 
 1. List the disks for verification.
 
     ```bash
-    ncn# disks_to_wipe="$(lsblk -l -o SIZE,NAME,TYPE,TRAN | grep -E '(raid|'"$metal_transports"')' | sort -u | awk '{print "/dev/"$2}' | tr '\n' ' ' | sed 's/ *$//')"
+    ncn# disks_to_wipe=$(lsblk -l -o NAME,TYPE,TRAN | grep -E '[[:space:]].*(sata|nvme|sas|raid)' | awk '{ print "/dev/"$1 }' | sort -u | tr '\n' ' ')
+    ncn# echo "${disks_to_wipe}"
     ```
 
 1. Wipe the disks and the RAIDs.
@@ -73,9 +72,7 @@ This wipe erases the magic bits on the disk to prevent them from being recognize
          done
     ```
 
-<a name="advanced-wipe"></a>
-
-## Advanced Wipe
+## Advanced wipe
 
 An advanced wipe includes handling storage node specific items before running the [basic wipe](#basic-wipe).
 
@@ -111,9 +108,7 @@ An advanced wipe includes handling storage node specific items before running th
 
 1. Perform the [Basic Wipe](#basic-wipe) procedure.
 
-<a name="full-wipe"></a>
-
-## Full-Wipe
+## Full wipe
 
 This section walks a user through cleanly stopping all running services that require partitions, as well
 removing the node from the Ceph or Kubernetes cluster (as appropriate for the node type).
