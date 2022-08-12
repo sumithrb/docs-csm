@@ -137,6 +137,11 @@ wiping a different type of node than what a step specifies, then skip that step.
 
         ```bash
         ncn-w# crictl ps
+        ```
+
+        Example output:
+
+        ```text
         CONTAINER           IMAGE               CREATED              STATE               NAME                                                ATTEMPT             POD ID
         66a78adf6b4c2       18b6035f5a9ce       About a minute ago   Running             spire-bundle                                        1212                6d89f7dee8ab6
         7680e4050386d       c8344c866fa55       24 hours ago         Running             speaker                                             0                   5460d2bffb4d7
@@ -165,6 +170,11 @@ wiping a different type of node than what a step specifies, then skip that step.
 
         ```bash
         ncn-m# crictl ps
+        ```
+
+        Example output:
+
+        ```text
         CONTAINER           IMAGE               CREATED              STATE               NAME                                                ATTEMPT             POD ID
         66a78adf6b4c2       18b6035f5a9ce       About a minute ago   Running             spire-bundle                                        1212                6d89f7dee8ab6
         7680e4050386d       c8344c866fa55       24 hours ago         Running             speaker                                             0                   5460d2bffb4d7
@@ -211,6 +221,11 @@ wiping a different type of node than what a step specifies, then skip that step.
 
             ```bash
             ncn-s# mount | grep "containers"
+            ```
+
+            Example output:
+
+            ```text
             /dev/mapper/metalvg0-CONTAIN on /var/lib/containers type xfs (rw,noatime,swalloc,attr2,largeio,inode64,allocsize=131072k,logbufs=8,logbsize=32k,noquota)
             /dev/mapper/metalvg0-CONTAIN on /var/lib/containers/storage/overlay type xfs (rw,noatime,swalloc,attr2,largeio,inode64,allocsize=131072k,logbufs=8,logbsize=32k,noquota)
             ```
@@ -219,6 +234,11 @@ wiping a different type of node than what a step specifies, then skip that step.
 
             ```bash
             ncn-s# umount -v /var/lib/containers/storage/overlay
+            ```
+
+            Example output:
+
+            ```text
             umount: /var/lib/containers/storage/overlay unmounted
             ```
 
@@ -226,6 +246,11 @@ wiping a different type of node than what a step specifies, then skip that step.
 
             ```bash
             ncn-s# umount -v /var/lib/containers
+            ```
+
+            Example output:
+
+            ```text
             umount: /var/lib/containers unmounted
             ```
 
@@ -241,6 +266,11 @@ wiping a different type of node than what a step specifies, then skip that step.
 
         ```bash
         ncn# podman ps
+        ```
+
+        Example output:
+
+        ```text
         CONTAINER ID  IMAGE                                                      COMMAND               CREATED      STATUS          PORTS   NAMES
         7741d5096625  registry.local/sdu-docker-stable-local/cray-sdu-rda:1.1.1  /bin/sh -c /usr/s...  6 weeks ago  Up 6 weeks ago          cray-sdu-rda
         ```
@@ -249,6 +279,11 @@ wiping a different type of node than what a step specifies, then skip that step.
 
         ```bash
         ncn# podman stop 7741d5096625
+        ```
+
+        Example output:
+
+        ```text
         7741d50966259410298bb4c3210e6665cdbd57a82e34e467d239f519ae3f17d4
         ```
 
