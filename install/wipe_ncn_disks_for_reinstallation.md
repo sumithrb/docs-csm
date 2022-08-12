@@ -31,7 +31,8 @@ This wipe erases the magic bits on the disk to prevent them from being recognize
 1. List the disks for verification.
 
     ```bash
-    ncn# disks_to_wipe=$(lsblk -l -o NAME,TYPE,TRAN | grep -E '[[:space:]].*(sata|nvme|sas|raid)' | awk '{ print "/dev/"$1 }' | sort -u | tr '\n' ' ')
+    ncn# disks_to_wipe=$(lsblk -l -o NAME,TYPE,TRAN | grep -E '[[:space:]].*(sata|nvme|sas|raid)' |
+                         awk '{ print "/dev/"$1 }' | sort -u | tr '\n' ' ')
     ncn# echo "${disks_to_wipe}"
     ```
 
