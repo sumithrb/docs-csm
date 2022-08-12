@@ -49,9 +49,9 @@ Fetch the base installation CSM tarball, extract it, and install the contained C
    > and exported.
 
    ```bash
-   pit# export CSM_RELEASE=csm-x.y.z
-   pit# export SYSTEM_NAME=eniac
-   pit# export PITDATA=/mnt/pitdata
+   linux# export CSM_RELEASE=csm-x.y.z
+   linux# export SYSTEM_NAME=eniac
+   linux# export PITDATA=/mnt/pitdata
    ```
 
 1. Download and expand the CSM software release.
@@ -158,6 +158,11 @@ Fetch the base installation CSM tarball, extract it, and install the contained C
 
     ```bash
     ncn-m001# ls /etc/cni/net.d
+    ```
+
+    Expected output:
+
+    ```text
     87-podman-bridge.conflist  99-loopback.conf.sample
     ```
 
@@ -252,8 +257,8 @@ The `SHASTA-CFG` structure and other configuration files will be prepared, then 
 This payload will be used for the rest of the CSM installation on the USB device.
 
 1. [Generate Installation Files](#generate-installation-files)
-2. [Verify and Backup `system_config.yaml`](#verify-csi-versions-match)
-3. [Prepare `Site Init`](#prepare-site-init)
+1. [Verify and Backup `system_config.yaml`](#verify-csi-versions-match)
+1. [Prepare `Site Init`](#prepare-site-init)
 
 <a name="generate-installation-files"></a>
 
@@ -447,7 +452,7 @@ information for this system has not yet been prepared.
       > **`NOTE`** This step is needed only for fresh installs where `system_config.yaml` is missing from the `prep/` directory.
 
       ```bash
-      pit# cd ${PITDATA}/prep && ln ${SYSTEM_NAME}/system_config.yaml
+      linux# cd ${PITDATA}/prep && ln ${SYSTEM_NAME}/system_config.yaml
       ```
 
    1. Continue to the next step to [verify and backup `system_config.yaml`](#verify-csi-versions-match).
