@@ -825,13 +825,7 @@ On first log in (over SSH or at local console), the LiveCD will prompt the admin
    pit# /root/bin/pit-init.sh
    ```
 
-1. Start and configure NTP on the LiveCD for a fallback/recovery server.
-
-   ```bash
-   pit# /root/bin/configure-ntp.sh
-   ```
-
-1. Install Goss Tests and Server
+1. Install Goss tests.
 
    The following assumes the `CSM_PATH` environment variable is set to the absolute path of the unpacked CSM release.
 
