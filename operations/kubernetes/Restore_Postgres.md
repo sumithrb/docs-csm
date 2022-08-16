@@ -81,31 +81,31 @@ This assumes that a dump of the database exists.
     response = s3_client.download_file('postgres-backup', 'spire-postgres-2021-07-21T19:03:18.psql', 'spire-postgres-2021-07-21T19:03:18.psql')
     ```
 
-2. Scale the Spire service to 0.
+1. Scale the Spire service to 0.
 
     ```bash
     ncn-w001# CLIENT=spire-server
     ncn-w001# NAMESPACE=spire
     ncn-w001# POSTGRESQL=spire-postgres
 
-    ncn-w001# kubectl scale statefulset ${CLIENT} -n ${NAMESPACE} --replicas=0
+    ncn-w001# kubectl scale statefulset "${CLIENT}" -n "${NAMESPACE}" --replicas=0
 
     # Wait for the pods to terminate
-    ncn-w001# while [ $(kubectl get pods -n ${NAMESPACE} -l app.kubernetes.io/name="${CLIENT}" | grep -v NAME | wc -l) != 0 ] ; do echo "  waiting for pods to terminate"; sleep 2; done
+    ncn-w001# while [[ $(kubectl get pods -n "${NAMESPACE}" -l app.kubernetes.io/name="${CLIENT}" | grep -v NAME | wc -l) != 0 ]] ; do echo "  waiting for pods to terminate"; sleep 2; done
     ```
 
-3. Delete the Spire Postgres cluster.
+1. Delete the Spire Postgres cluster.
 
     ```bash
-    ncn-w001# kubectl get postgresql ${POSTGRESQL} -n ${NAMESPACE} -o json | jq 'del(.spec.selector)' | jq 'del(.spec.template.metadata.labels."controller-uid")' | jq 'del(.status)' > postgres-cr.json
+    ncn-w001# kubectl get postgresql "${POSTGRESQL}" -n "${NAMESPACE}" -o json | jq 'del(.spec.selector)' | jq 'del(.spec.template.metadata.labels."controller-uid")' | jq 'del(.status)' > postgres-cr.json
 
     ncn-w001# kubectl delete -f postgres-cr.json
 
     # Wait for the pods to terminate
-    ncn-w001# while [ $(kubectl get pods -l "application=spilo,cluster-name=${POSTGRESQL}" -n ${NAMESPACE} | grep -v NAME | wc -l) != 0 ] ; do echo "  waiting for pods to terminate"; sleep 2; done
+    ncn-w001# while [[ $(kubectl get pods -l "application=spilo,cluster-name=${POSTGRESQL}" -n "${NAMESPACE}" | grep -v NAME | wc -l) != 0 ]] ; do echo "  waiting for pods to terminate"; sleep 2; done
     ```
 
-4. Create a new single instance Spire Postgres cluster.
+1. Create a new single instance Spire Postgres cluster.
 
     ```bash
     ncn-w001# cp postgres-cr.json postgres-orig-cr.json
@@ -113,26 +113,26 @@ This assumes that a dump of the database exists.
     ncn-w001# kubectl create -f postgres-cr.json
 
     # Wait for the pod and Postgres cluster to start running
-    ncn-w001# while [ $(kubectl get pods -l "application=spilo,cluster-name=${POSTGRESQL}" -n ${NAMESPACE} | grep -v NAME | wc -l) != 1 ] ; do echo "  waiting for pod to start running"; sleep 2; done
+    ncn-w001# while [[ $(kubectl get pods -l "application=spilo,cluster-name=${POSTGRESQL}" -n "${NAMESPACE}" | grep -v NAME | wc -l) != 1 ]] ; do echo "  waiting for pod to start running"; sleep 2; done
 
-    ncn-w001# while [ $(kubectl get postgresql "${POSTGRESQL}" -n "${NAMESPACE}" -o json | jq -r '.status.PostgresClusterStatus') != "Running" ] ; do echo "  waiting for postgresql to start running"; sleep 2; done
+    ncn-w001# while [[ $(kubectl get postgresql "${POSTGRESQL}" -n "${NAMESPACE}" -o json | jq -r '.status.PostgresClusterStatus') != "Running" ]] ; do echo "  waiting for postgresql to start running"; sleep 2; done
     ```
 
-5. Copy the database dump file to the Postgres member.
+1. Copy the database dump file to the Postgres member.
 
     ```bash
     ncn-w001# DUMPFILE=spire-postgres-2021-07-21T19:03:18.psql
 
-    ncn-w001# kubectl cp ./${DUMPFILE} "${POSTGRESQL}-0":/home/postgres/${DUMPFILE} -c postgres -n ${NAMESPACE}
+    ncn-w001# kubectl cp "./${DUMPFILE}" "${POSTGRESQL}-0:/home/postgres/${DUMPFILE}" -c postgres -n "${NAMESPACE}"
     ```
 
-6. Restore the data.
+1. Restore the data.
 
     ```bash
-    ncn-w001# kubectl exec "${POSTGRESQL}-0" -c postgres -n ${NAMESPACE} -it -- psql -U postgres < ${DUMPFILE}
+    ncn-w001# kubectl exec "${POSTGRESQL}-0" -c postgres -n "${NAMESPACE}" -it -- psql -U postgres < "${DUMPFILE}"
     ```
 
-7. Either update or re-create the `spire-postgres` secrets.
+1. Either update or re-create the `spire-postgres` secrets.
 
    * Update the secrets in Postgres.
 
@@ -141,10 +141,12 @@ This assumes that a dump of the database exists.
         Based off the four `spire-postgres` secrets, collect the password for each Postgres username: `postgres`, `service_account`, `spire`, and `standby`. Then `kubectl exec` into the Postgres pod and update the password for each user. For example:
 
         ```bash
-        ncn-w001# for secret in postgres.spire-postgres.credentials service-account.spire-postgres.credentials spire.
-        spire-postgres.credentials standby.spire-postgres.credentials; do echo -n "secret ${secret} username & password: "; echo 
-        -n "`kubectl get secret ${secret} -n ${NAMESPACE} -ojsonpath='{.data.username}' | base64 -d` "; echo `kubectl get secret $
-        {secret} -n ${NAMESPACE} -ojsonpath='{.data.password}'| base64 -d`; done
+        ncn-w001# for secret in postgres.spire-postgres.credentials service-account.spire-postgres.credentials \
+                                spire.spire-postgres.credentials standby.spire-postgres.credentials; do
+                      echo -n "secret ${secret} username & password: "
+                      echo -n "`kubectl get secret ${secret} -n ${NAMESPACE} -ojsonpath='{.data.username}' | base64 -d` "
+                      echo `kubectl get secret "${secret}" -n "${NAMESPACE}" -ojsonpath='{.data.password}'| base64 -d`
+                  done
         ```
 
         Example output:
@@ -157,7 +159,7 @@ This assumes that a dump of the database exists.
         ```
 
         ```bash
-        ncn-w001# kubectl exec "${POSTGRESQL}-0" -n ${NAMESPACE} -c postgres -it -- bash
+        ncn-w001# kubectl exec "${POSTGRESQL}-0" -n "${NAMESPACE}" -c postgres -it -- bash
         root@spire-postgres-0:/home/postgres# /usr/bin/psql postgres postgres
         postgres=# ALTER USER postgres WITH PASSWORD 'ABCXYZ';
         ALTER ROLE
@@ -179,15 +181,15 @@ This assumes that a dump of the database exists.
         ```bash
         ncn-w001# MANIFEST=spire-postgres-2021-07-21T19:03:18.manifest
 
-        ncn-w001# kubectl delete secret postgres.spire-postgres.credentials service-account.spire-postgres.credentials spire.spire-postgres.credentials standby.spire-postgres.credentials -n ${NAMESPACE}
+        ncn-w001# kubectl delete secret postgres.spire-postgres.credentials service-account.spire-postgres.credentials spire.spire-postgres.credentials standby.spire-postgres.credentials -n "${NAMESPACE}"
 
-        ncn-w001# kubectl apply -f ${MANIFEST}
+        ncn-w001# kubectl apply -f "${MANIFEST}"
         ```
 
-8. Restart the Postgres cluster.
+1. Restart the Postgres cluster.
 
     ```bash
-    ncn-w001# kubectl delete pod -n ${NAMESPACE} "${POSTGRESQL}-0"
+    ncn-w001# kubectl delete pod -n "${NAMESPACE}" "${POSTGRESQL}-0"
 
     # Wait for the postgresql pod to start
     ncn-w001# while [ $(kubectl get pods -l "application=spilo,cluster-name=${POSTGRESQL}" -n ${NAMESPACE} | grep -v NAME | wc -l) != 1 ] ; do echo "  waiting for pods to start running"; sleep 2; done
