@@ -9,7 +9,6 @@ product streams for the HPE Cray EX system can be installed or upgraded.
 - [Upgrade CSM](#upgrade-csm)
   - [Known Issues](#known-issues)
   - [1. Prepare for upgrade](#1-prepare-for-upgrade)
-  - [2. (Optional) Enable Customer High Speed Network Routing](#2-optional-enable-customer-high-speed-network-routing)
   - [3. Upgrade management nodes and CSM services](#3-upgrade-management-nodes-and-csm-services)
   - [4. Validate CSM health](#4-validate-csm-health)
   - [5. Next topic](#5-next-topic)
@@ -25,16 +24,7 @@ sections, but there is also a general troubleshooting topic.
 
 See [Prepare for Upgrade](prepare_for_upgrade.md).
 
-## 2. (Optional) Enable Customer High Speed Network Routing
-
-If the CHN is the desired network for customer access, see [Enable Customer High Speed Network Routing](../operations/network/management_network/bican_enable.md).
-This should be completed before the management nodes are upgraded so that the correct HSN IP addresses are allocated and applied during the upgrade.
-
-This feature has additional requirements which include.
-
-- Customer edge switches
-- Cabling from HSN to edge switches
-- Additional IP address space
+_NOTE: Important management network pre-requisities have been added to this section.  They must be reviewed before proceeding with the upgrade procedure._
 
 ## 3. Upgrade management nodes and CSM services
 
