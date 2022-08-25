@@ -59,7 +59,7 @@ Before beginning an upgrade to a new version of CSM, there are a few things to d
 
     This release introduces the ability to route customer access traffic to the high-speed network instead of the management network.  This feature is called the Customer High-speed Network (CHN).  By default the customer access network (CAN) is routed over the management network.
 
-    If the CHN is the desired network for customer access, the associated system configuration change should be made before starting the CSM upgrade.  sSe [Enable Customer High Speed Network Routing](../operations/network/management_network/bican_enable.md).
+    If the CHN is the desired network for customer access, the associated system configuration change should be made before starting the CSM upgrade.  See [Enable Customer High Speed Network Routing](../operations/network/management_network/bican_enable.md).
 
     This should be completed before the management nodes are upgraded so that the correct HSN IP addresses are allocated and applied during the upgrade.
 
@@ -70,3 +70,7 @@ Before beginning an upgrade to a new version of CSM, there are a few things to d
     A switch configuration update is also required if CHN has been enabled.  Specifically, the BGP configuration on the edge switch needs to be updated to match the system if it has changed between CAN and CHN for user access.  It is also necessary to change the VLAN tagging on the switch ports to properly separate user and admin traffic.
 
     The update of the management network switches is separate from the CSM upgrade and should be done before starting the CSM upgrade.  The specifics of the network upgrade can vary from site to site, so a networking subject matter expert is required.
+
+    ```warning
+    TODO: Add link
+    ```
