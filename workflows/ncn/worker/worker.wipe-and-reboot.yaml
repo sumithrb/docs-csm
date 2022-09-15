@@ -34,7 +34,11 @@ tasks:
         - name: scriptContent
           value: |
             {{- include "common.envar" . | indent 12 }}
-
+            set -x
+            echo "TARGET_NCN = ${TARGET_NCN}"
+            echo "TARGET_XNAME=${TARGET_XNAME}"
+            echo "TARGET_MGMT_XNAME=${TARGET_MGMT_XNAME}"
+            echo "TARGET_NCN_mgmt_host=${TARGET_NCN_mgmt_host}"
             if ! cray bss bootparameters list --hosts $TARGET_XNAME --format json | jq '.[] |."cloud-init"."user-data".ntp' | grep -q '/etc/chrony.d/cray.conf'; then
               echo "${TARGET_NCN} is missing NTP data in BSS. Please see the procedure which can be found in the 'Known Issues and Bugs' section titled 'Fix BSS Metadata' on the 'Configure NTP on NCNs' page of the CSM documentation."
               exit 1
@@ -81,7 +85,11 @@ tasks:
         - name: scriptContent
           value: |
             {{- include "common.envar" . | indent 12 }}
-            
+            set -x
+            echo "TARGET_NCN = ${TARGET_NCN}"
+            echo "TARGET_XNAME=${TARGET_XNAME}"
+            echo "TARGET_MGMT_XNAME=${TARGET_MGMT_XNAME}"
+            echo "TARGET_NCN_mgmt_host=${TARGET_NCN_mgmt_host}"            
             cat <<'EOF' > set-next-boot-to-pxe.sh
               efibootmgr # print before
               efibootmgr | grep -P '(UEFI OS|cray)' | awk -F'[^0-9]*' '{print $0}' | sed 's/^Boot//g' | awk '{print $1}' | tr -d '*' | xargs -r -i efibootmgr -b {} -B
@@ -108,8 +116,12 @@ tasks:
           value: "{{ `{{inputs.parameters.dryRun}}` }}"
         - name: scriptContent
           value: |
-            set -x
             {{- include "common.envar" . | indent 12 }}
+            set -x
+            echo "TARGET_NCN = ${TARGET_NCN}"
+            echo "TARGET_XNAME=${TARGET_XNAME}"
+            echo "TARGET_MGMT_XNAME=${TARGET_MGMT_XNAME}"
+            echo "TARGET_NCN_mgmt_host=${TARGET_NCN_mgmt_host}"            
             
             # Set ncn to pxe boot
             ipmitool -I lanplus -U ${IPMI_USERNAME} -E -H $TARGET_NCN_mgmt_host chassis bootdev pxe options=efiboot
@@ -134,6 +146,11 @@ tasks:
         - name: scriptContent
           value: |
             {{- include "common.envar" . | indent 12 }}
+            set -x
+            echo "TARGET_NCN = ${TARGET_NCN}"
+            echo "TARGET_XNAME=${TARGET_XNAME}"
+            echo "TARGET_MGMT_XNAME=${TARGET_MGMT_XNAME}"
+            echo "TARGET_NCN_mgmt_host=${TARGET_NCN_mgmt_host}"            
 
             bootscript_last_epoch="{{ `{{tasks.get-bootscript-last-access-timestamp.outputs.result}}` }}"
             
@@ -181,6 +198,11 @@ tasks:
         - name: scriptContent
           value: |
             {{- include "common.envar" . | indent 12 }}
+            set -x
+            echo "TARGET_NCN = ${TARGET_NCN}"
+            echo "TARGET_XNAME=${TARGET_XNAME}"
+            echo "TARGET_MGMT_XNAME=${TARGET_MGMT_XNAME}"
+            echo "TARGET_NCN_mgmt_host=${TARGET_NCN_mgmt_host}"            
 
             # wait random seconds (1-10s) until ssh is working
             echo "wait for ssh ..."
@@ -244,6 +266,11 @@ tasks:
         - name: scriptContent
           value: |
             {{- include "common.envar" . | indent 12 }}
+            set -x
+            echo "TARGET_NCN = ${TARGET_NCN}"
+            echo "TARGET_XNAME=${TARGET_XNAME}"
+            echo "TARGET_MGMT_XNAME=${TARGET_MGMT_XNAME}"
+            echo "TARGET_NCN_mgmt_host=${TARGET_NCN_mgmt_host}"            
 
             ssh ${TARGET_NCN} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null 'cray init --no-auth --overwrite --hostname https://api-gw-service-nmn.local'
 {{end}}

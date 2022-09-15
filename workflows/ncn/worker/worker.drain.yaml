@@ -266,6 +266,11 @@ tasks:
         - name: scriptContent
           value: |
             {{- include "common.envar" . | indent 12 }}
+            set -x
+            echo "TARGET_NCN = ${TARGET_NCN}"
+            echo "TARGET_XNAME=${TARGET_XNAME}"
+            echo "TARGET_MGMT_XNAME=${TARGET_MGMT_XNAME}"
+            echo "TARGET_NCN_mgmt_host=${TARGET_NCN_mgmt_host}"            
 
             SSH_OPT="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 

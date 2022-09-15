@@ -116,7 +116,6 @@ spec:
                   value: "{{$.DryRun}}"
                 - name: scriptContent
                   value: |
-                    set -x
                     /opt/cray/tests/install/ncn/scripts/ceph-service-status.sh -v true || /opt/cray/tests/install/ncn/scripts/ceph-service-status.sh -A true -v true
           {{- range $index,$value := .TargetNcns}}
           - name: upgrade-{{$value}}
@@ -136,7 +135,6 @@ spec:
                   value: "{{$.DryRun}}"  
                 - name: scriptContent
                   value: |
-                    set -x
                     /usr/share/doc/csm/upgrade/scripts/upgrade/ncn-upgrade-ceph-nodes.sh {{$value}}
           - name: check-ceph-health-{{$value}}
             templateRef:
@@ -151,7 +149,6 @@ spec:
                   value: "{{$.DryRun}}"  
                 - name: scriptContent
                   value: |
-                    set -x
                     /opt/cray/tests/install/ncn/scripts/ceph-service-status.sh -v true
                     /opt/cray/tests/install/ncn/scripts/ceph-service-status.sh -n {{$value}} -a true -v true
           {{- end }}
