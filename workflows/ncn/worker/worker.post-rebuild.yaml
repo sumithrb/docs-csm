@@ -33,9 +33,12 @@ tasks:
           value: "{{ `{{inputs.parameters.dryRun}}` }}"
         - name: scriptContent
           value: |
+            set -x
             TARGET_NCN={{ `{{inputs.parameters.targetNcn}}` }}
+            echo "TARGET_NCN=${TARGET_NCN}"
             TARGET_XNAME=$(curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/sls/v1/search/hardware?extra_properties.Role=Management" | \
                 jq -r ".[] | select(.ExtraProperties.Aliases[] | contains(\"$TARGET_NCN\")) | .Xname")
+            echo "TARGET_XNAME=${TARGET_XNAME}"
             /host_usr_bin/csi handoff bss-update-param --set metal.no-wipe=1 --limit $TARGET_XNAME
   - name: wait-for-cfs-after-rebuild
     templateRef:
@@ -47,9 +50,14 @@ tasks:
           value: "{{ `{{inputs.parameters.dryRun}}` }}"
         - name: scriptContent
           value: |
+            set -x
             TARGET_NCN={{ `{{inputs.parameters.targetNcn}}` }}
+            echo "TARGET_NCN=${TARGET_NCN}"
             TARGET_XNAME=$(curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/sls/v1/search/hardware?extra_properties.Role=Management" | \
                 jq -r ".[] | select(.ExtraProperties.Aliases[] | contains(\"$TARGET_NCN\")) | .Xname")
+            echo "TARGET_XNAME=${TARGET_XNAME}"
+            TMPFILE=/tmp/tmpout.$(date +%Y%m%d_%H%M%S).$$.$RANDOM
+            echo "TMPFILE=${TMPFILE}"
 
             set -o pipefail
 
@@ -58,7 +66,11 @@ tasks:
                 # Retry CFS command if needed
                 COUNT=0
                 while true; do
-                    ENABLED=$(curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components/${TARGET_XNAME}" | jq -r '.enabled') && break
+                    curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components/${TARGET_XNAME}" > ${TMPFILE}
+                    rc=$?
+                    cat ${TMPFILE}
+                    echo "rc = $rc"
+                    ENABLED=$(cat ${TMPFILE} | jq -r '.enabled') && break                    
                     let COUNT+=1
                     if [[ ${COUNT} -gt 12 ]]; then
                         echo "ERROR: Even after retries, command pipeline failed querying CFS component '${TARGET_XNAME}'"
@@ -67,6 +79,7 @@ tasks:
                     echo "WARNING: Command pipeline failed querying CFS component '${TARGET_XNAME}'. Retrying after 5 seconds."
                     sleep 5
                 done
+                echo "ENABLED=$ENABLED"
                 if [[ ${ENABLED} == false ]]; then
                     echo "CFS component '${TARGET_XNAME}' still not enabled. Checking again after 30 seconds."
                     sleep 30
@@ -82,7 +95,11 @@ tasks:
             # Retry CFS command if needed
             COUNT=0
             while true; do
-                DESIRED_CONFIG=$(curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components/${TARGET_XNAME}" | jq -r '.desiredConfig') && break
+                curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components/${TARGET_XNAME}" > ${TMPFILE}
+                rc=$?
+                cat ${TMPFILE}
+                echo "rc = $rc"
+                DESIRED_CONFIG=$(cat ${TMPFILE} | jq -r '.desiredConfig') && break
                 let COUNT+=1
                 if [[ ${COUNT} -gt 12 ]]; then
                     echo "ERROR: Even after retries, command pipeline failed querying CFS component '${TARGET_XNAME}'"
@@ -92,12 +109,18 @@ tasks:
                 sleep 5
             done
             if [[ -z ${DESIRED_CONFIG} ]]; then
-              exit 0
+                echo "No desired configuration set"
+                exit 0
             fi
             echo "Desired configuration for CFS component '${TARGET_XNAME}' is '${DESIRED_CONFIG}'"
 
             while true; do
-              RESULT=$(curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components?ids=${TARGET_XNAME}&status=pending" | jq length)
+              curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components?ids=${TARGET_XNAME}&status=pending" > ${TMPFILE}
+              rc=$?
+              cat ${TMPFILE}
+              echo "rc = $rc"
+              RESULT=$(cat ${TMPFILE} | jq length)
+              echo "RESULT=$RESULT"
               if [[ "$RESULT" -eq 0 ]]; then
                 break
               fi
@@ -105,11 +128,24 @@ tasks:
               sleep 30
             done
 
-            CONFIGURED=$(curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components?ids=${TARGET_XNAME}&status=configured" | jq length)
-            FAILED=$(curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components?ids=${TARGET_XNAME}&status=failed" | jq length)
+            curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components?ids=${TARGET_XNAME}&status=configured" > ${TMPFILE}
+            rc=$?
+            cat ${TMPFILE}
+            echo "rc = $rc"
+            CONFIGURED=$(cat ${TMPFILE} | jq length)
+            
+            curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components?ids=${TARGET_XNAME}&status=failed" > ${TMPFILE}
+            rc=$?
+            cat ${TMPFILE}
+            echo "rc = $rc"
+            FAILED=$(cat ${TMPFILE} | jq length)
             echo "Configuration complete. $CONFIGURED component(s) completed successfully.  $FAILED component(s) failed."
             if [ "$FAILED" -ne "0" ]; then
-              echo "The following components failed: $(curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components?ids=${TARGET_XNAME}&status=failed"  | jq -r '. | map(.id) | join(",")')"
+              curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components?ids=${TARGET_XNAME}&status=failed" > ${TMPFILE}
+              rc=$?
+              cat ${TMPFILE}
+              echo "rc = $rc"
+              echo "The following components failed: $(cat ${TMPFILE} | jq -r '. | map(.id) | join(",")')"
               exit 1
             fi
   - name: ensure-csm-rpms-installed
@@ -122,6 +158,7 @@ tasks:
           value: "{{ `{{inputs.parameters.dryRun}}` }}"
         - name: scriptContent
           value: |
+            set -x
             ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null {{ `{{inputs.parameters.targetNcn}}` }} \
               'source /srv/cray/scripts/metal/metal-lib.sh;install_csm_rpms'
   - name: goss
@@ -138,6 +175,7 @@ tasks:
           value: "{{ `{{inputs.parameters.dryRun}}` }}"
         - name: scriptContent
           value: |
+            set -x
             ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null {{ `{{inputs.parameters.targetNcn}}` }} \
               -t "SW_ADMIN_PASSWORD='{{.SwitchPassword}}' \
                   GOSS_BASE=/opt/cray/tests/install/ncn \

@@ -23,6 +23,7 @@
 #
 
 {{define "common.envar"}}
+set -x
 
 TOKEN=$(curl -k -s -S -d grant_type=client_credentials \
    -d client_id=admin-client \
@@ -30,15 +31,24 @@ TOKEN=$(curl -k -s -S -d grant_type=client_credentials \
    https://api-gw-service-nmn.local/keycloak/realms/shasta/protocol/openid-connect/token | jq -r '.access_token')
 
 TARGET_NCN={{ `{{inputs.parameters.targetNcn}}` }}
+echo "TARGET_NCN = ${TARGET_NCN}"
+
 TARGET_XNAME=$(curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/sls/v1/search/hardware?extra_properties.Role=Management" | \
      jq -r ".[] | select(.ExtraProperties.Aliases[] | contains(\"$TARGET_NCN\")) | .Xname")
+echo "TARGET_XNAME=${TARGET_XNAME}"
+     
 TARGET_MGMT_XNAME=$(curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/sls/v1/search/hardware?extra_properties.Role=Management" | \
   jq -r ".[] | select(.ExtraProperties.Aliases[] | contains(\"$TARGET_NCN\")) | .Parent")
+echo "TARGET_MGMT_XNAME=${TARGET_MGMT_XNAME}"
 
 TARGET_NCN_mgmt_host="${TARGET_NCN}-mgmt"
+echo "TARGET_NCN_mgmt_host=${TARGET_NCN_mgmt_host}"
 
 
-export IPMI_USERNAME=$(curl -XGET -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/scsd/v1/bmc/creds"| jq -r ".Targets[] | select(.Xname | contains(\"$TARGET_MGMT_XNAME\")) | .Username")
-export IPMI_PASSWORD=$(curl -XGET -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/scsd/v1/bmc/creds"| jq -r ".Targets[] | select(.Xname | contains(\"$TARGET_MGMT_XNAME\")) | .Password")
+IPMI_USERNAME=$(curl -XGET -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/scsd/v1/bmc/creds"| jq -r ".Targets[] | select(.Xname | contains(\"$TARGET_MGMT_XNAME\")) | .Username")
+export IPMI_USERNAME
+
+IPMI_PASSWORD=$(curl -XGET -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/scsd/v1/bmc/creds"| jq -r ".Targets[] | select(.Xname | contains(\"$TARGET_MGMT_XNAME\")) | .Password")
+export IPMI_PASSWORD
 
 {{end}}

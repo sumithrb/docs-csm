@@ -266,16 +266,21 @@ if [[ -n ${CLEAR_STATE} ]]; then
     done
 fi
 
+run_mktemp --tmpdir="${TMPDIR}" "cfs-components-after-XXXXXX.json"
+CFS_COMPONENTS_AFTER=${tmpfile}
+
 if [[ -z ${NO_ENABLE} ]]; then
     echo "Setting desired configuration, clearing error count, and enabling all listed components"
     for xname in ${XNAME_LIST}; do
         run_cmd cray cfs components update ${xname} --enabled true --error-count 0 --desired-config ncn-personalization
     done
+    cray cfs components list --format json > ${CFS_COMPONENTS_AFTER} 2>&1
 else
     echo "Setting desired configuration and clearing error count for all listed components"
     for xname in ${XNAME_LIST}; do
         run_cmd cray cfs components update ${xname} --enabled false --error-count 0 --desired-config ncn-personalization
     done
+    cray cfs components list --format json > ${CFS_COMPONENTS_AFTER} 2>&1
     echo "All components updated successfully."
     exit 0
 fi

@@ -33,16 +33,25 @@ tasks:
           value: "{{ `{{inputs.parameters.dryRun}}` }}"
         - name: scriptContent
           value: |
+            set -x
             TARGET_NCN={{ `{{inputs.parameters.targetNcn}}` }}
+            echo "TARGET_NCN=${TARGET_NCN}"
             TARGET_XNAME=$(curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/sls/v1/search/hardware?extra_properties.Role=Management" | \
                 jq -r ".[] | select(.ExtraProperties.Aliases[] | contains(\"$TARGET_NCN\")) | .Xname")
+            echo "TARGET_XNAME=${TARGET_XNAME}"
+            TMPFILE=/tmp/tmpout.$(date +%Y%m%d_%H%M%S).$$.$RANDOM
+            echo "TMPFILE=${TMPFILE}"
 
             set -o pipefail
 
             # Retry CFS command if needed
             COUNT=0
             while true; do
-                ENABLED=$(curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components/${TARGET_XNAME}" | jq -r '.enabled') && break
+                curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components/${TARGET_XNAME}" > ${TMPFILE}
+                rc=$?
+                cat ${TMPFILE}
+                echo "rc = $rc"
+                ENABLED=$(cat ${TMPFILE} | jq -r '.enabled') && break
                 let COUNT+=1
                 if [[ ${COUNT} -gt 12 ]]; then
                     echo "ERROR: Even after retries, command pipeline failed querying CFS component '${TARGET_XNAME}'"
@@ -51,6 +60,7 @@ tasks:
                 echo "WARNING: Command pipeline failed querying CFS component '${TARGET_XNAME}'. Retrying after 5 seconds."
                 sleep 5
             done
+            echo "ENABLED=$ENABLED"
             if [[ ${ENABLED} == false ]]; then
               exit 0
             elif [[ ${ENABLED} != true ]]; then
@@ -62,7 +72,11 @@ tasks:
             # Retry CFS command if needed
             COUNT=0
             while true; do
-                DESIRED_CONFIG=$(curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components/${TARGET_XNAME}" | jq -r '.desiredConfig') && break
+                curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components/${TARGET_XNAME}" > ${TMPFILE}
+                rc=$?
+                cat ${TMPFILE}
+                echo "rc = $rc"
+                DESIRED_CONFIG=$(cat ${TMPFILE} | jq -r '.desiredConfig') && break
                 let COUNT+=1
                 if [[ ${COUNT} -gt 12 ]]; then
                     echo "ERROR: Even after retries, command pipeline failed querying CFS component '${TARGET_XNAME}'"
@@ -72,12 +86,18 @@ tasks:
                 sleep 5
             done
             if [[ -z ${DESIRED_CONFIG} ]]; then
+              echo "No desired configuration set"
               exit 0
             fi
             echo "Desired configuration for CFS component '${TARGET_XNAME}' is '${DESIRED_CONFIG}'"
 
             while true; do
-              RESULT=$(curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components?ids=${TARGET_XNAME}&status=pending" | jq length)
+              curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components?ids=${TARGET_XNAME}&status=pending" > ${TMPFILE}
+              rc=$?
+              cat ${TMPFILE}
+              echo "rc = $rc"
+              RESULT=$(cat ${TMPFILE} | jq length)
+              echo "RESULT=$RESULT"
               if [[ "$RESULT" -eq 0 ]]; then
                 break
               fi
@@ -85,11 +105,23 @@ tasks:
               sleep 30
             done
 
-            CONFIGURED=$(curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components?ids=${TARGET_XNAME}&status=configured" | jq length)
-            FAILED=$(curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components?ids=${TARGET_XNAME}&status=failed" | jq length)
+            curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components?ids=${TARGET_XNAME}&status=configured" > ${TMPFILE}
+            rc=$?
+            cat ${TMPFILE}
+            echo "rc = $rc"
+            CONFIGURED=$(cat ${TMPFILE} | jq length)
+            curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components?ids=${TARGET_XNAME}&status=failed" > ${TMPFILE}
+            rc=$?
+            cat ${TMPFILE}
+            echo "rc = $rc"
+            FAILED=$(cat ${TMPFILE} | jq length)
             echo "Configuration complete. $CONFIGURED component(s) completed successfully.  $FAILED component(s) failed."
             if [ "$FAILED" -ne "0" ]; then
-              echo "The following components failed: $(curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components?ids=${TARGET_XNAME}&status=failed"  | jq -r '. | map(.id) | join(",")')"
+              curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components?ids=${TARGET_XNAME}&status=failed" > ${TMPFILE}
+              rc=$?
+              cat ${TMPFILE}
+              echo "rc = $rc"
+              echo "The following components failed: $(cat ${TMPFILE}  | jq -r '. | map(.id) | join(",")')"
               exit 1
             fi
   - name: clear-cfs-state
@@ -104,13 +136,23 @@ tasks:
           value: "{{ `{{inputs.parameters.dryRun}}` }}"
         - name: scriptContent
           value: |
-            TARGET_NCN={{ `{{inputs.parameters.targetNcn}}` }}
+            set -x            
+            TARGET_NCN={{ `{{inputs.parameters.targetNcn}}` }}            
+            echo "TARGET_NCN=${TARGET_NCN}"
             TARGET_XNAME=$(curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/sls/v1/search/hardware?extra_properties.Role=Management" | \
                 jq -r ".[] | select(.ExtraProperties.Aliases[] | contains(\"$TARGET_NCN\")) | .Xname")
+            echo "TARGET_XNAME=${TARGET_XNAME}"
+
+            curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components/${TARGET_XNAME}"
+            echo "rc = $?"
 
             curl -s -k -H "Authorization: Bearer ${TOKEN}" -X PATCH "https://api-gw-service-nmn.local/apis/cfs/v2/components/${TARGET_XNAME}" \
               -H 'Content-Type: application/json' \
               -d '{"enabled": false, "state": []}'
+            echo "rc = $?"
+
+            curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components/${TARGET_XNAME}"
+            echo "rc = $?"
   - name: ensure-etcd-pods-are-healthy
     templateRef:
       name: ssh-template
@@ -121,7 +163,16 @@ tasks:
           value: "{{ `{{inputs.parameters.dryRun}}` }}"
         - name: scriptContent
           value: |
-            while [[ "$(kubectl get po -A -l 'app=cray-etcd-operator-etcd-operator-etcd-operator' | grep -v "Running"| wc -l)" != "1" ]]; do
+            set -x
+            TMPFILE=/tmp/tmpout.$(date +%Y%m%d_%H%M%S).$$.$RANDOM
+            echo "TMPFILE=${TMPFILE}"
+
+            while true ; do
+                kubectl get po -A -l 'app=cray-etcd-operator-etcd-operator-etcd-operator' > ${TMPFILE}
+                rc=$?
+                cat ${TMPFILE}
+                echo "rc = $rc"
+                [[ "$(kubectl get po -A -l 'app=cray-etcd-operator-etcd-operator-etcd-operator' | grep -v "Running"| wc -l)" == "1" ]] && break
                 echo "Etcd operator is not in running state, wait for 5s ..."
                 kubectl get po -A -l 'app=cray-etcd-operator-etcd-operator-etcd-operator' | grep -v "Running"
                 sleep 5
@@ -141,10 +192,13 @@ tasks:
             done
 
             etcdClusters=$(kubectl get Etcdclusters -n services | grep "cray-"|awk '{print $1}')
+            echo "etcdClusters=$etcdClusters"
             for cluster in $etcdClusters
             do
+                echo "cluster=$cluster"
                 while true; do
                   numOfPods=$(kubectl get pods -A -l 'app=etcd'| grep $cluster | grep "Running" | wc -l)
+                  echo "cluster=$cluster numOfPods=$numOfPods"
                   if [[ $numOfPods -ne 3 ]];then
                     echo "ERROR - Etcd cluster: $cluster should have 3 pods running but only $numOfPods are running"
                     continue
@@ -164,6 +218,7 @@ tasks:
           value: "{{ `{{inputs.parameters.dryRun}}` }}"
         - name: scriptContent
           value: |
+            set -x
             export GOSS_BASE=/opt/cray/tests/install/ncn
             GOSS_ARG="--vars=/opt/cray/tests/install/ncn/vars/variables-ncn.yaml validate \
               --retry-timeout 1h \
@@ -186,10 +241,12 @@ tasks:
           value: "{{ `{{inputs.parameters.dryRun}}` }}"
         - name: scriptContent
           value: |
+            set -x
             labels=( "cray-bss" "cray-scsd" )
             for label in ${labels[@]};do
               while true; do
                 numOfRunningPods=$( kubectl get po -A -l "app.kubernetes.io/name=$label" | grep "Running"| wc -l)
+                echo "label=$label numOfRunningPods=$numOfRunningPods"
                 if [[ $numOfRunningPods -ge 2 ]]; then
                   echo "$label has met with the minimum requirement"
                   break;
@@ -245,7 +302,9 @@ tasks:
           value: "{{ `{{inputs.parameters.dryRun}}` }}"
         - name: scriptContent
           value: |
+            set -x
             kubectl get node {{ `{{inputs.parameters.targetNcn}}` }} || res=$?
+            echo "rc = $res"
             # only delete a ncn that exists in cluster
             if [[ $res -eq 0 ]]; then
               /host_usr_bin/csi automate ncn kubernetes --action delete-ncn --ncn {{ `{{inputs.parameters.targetNcn}}` }} --kubeconfig mykubeconfig/admin.conf
@@ -262,8 +321,16 @@ tasks:
           value: "{{ `{{inputs.parameters.dryRun}}` }}"
         - name: scriptContent
           value: |
+            set -x
+            TMPFILE=/tmp/tmpout.$(date +%Y%m%d_%H%M%S).$$.$RANDOM
+            echo "TMPFILE=${TMPFILE}"
             while true; do
-              numOfRunningPgOperatorPod=$(kubectl get pods -n services -l app.kubernetes.io/name=postgres-operator | grep "Running" | wc -l)
+              kubectl get pods -n services -l app.kubernetes.io/name=postgres-operator > ${TMPFILE}
+              rc=$?
+              cat ${TMPFILE}
+              echo "rc = $rc"
+              numOfRunningPgOperatorPod=$(cat ${TMPFILE} | grep "Running" | wc -l)
+              echo "numOfRunningPgOperatorPod=$numOfRunningPgOperatorPod"
               if [[ $numOfRunningPgOperatorPod -ne 1 ]];then
                 echo "ERROR - Postgres Operator is not running yet"
                 sleep 5
@@ -289,9 +356,12 @@ tasks:
           value: "{{ `{{inputs.parameters.dryRun}}` }}"
         - name: scriptContent
           value: |
+            set -x
             TARGET_NCN={{ `{{inputs.parameters.targetNcn}}` }}
+            echo "TARGET_NCN=$TARGET_NCN"
             TARGET_XNAME=$(curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/sls/v1/search/hardware?extra_properties.Role=Management" | \
                 jq -r ".[] | select(.ExtraProperties.Aliases[] | contains(\"$TARGET_NCN\")) | .Xname")
+            echo "TARGET_XNAME=$TARGET_XNAME"
             /host_usr_bin/csi handoff bss-update-param --delete metal.no-wipe --limit $TARGET_XNAME
             /host_usr_bin/csi handoff bss-update-param --set metal.no-wipe=0 --limit $TARGET_XNAME
 {{end}}

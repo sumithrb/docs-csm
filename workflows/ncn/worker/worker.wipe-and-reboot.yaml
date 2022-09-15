@@ -108,6 +108,7 @@ tasks:
           value: "{{ `{{inputs.parameters.dryRun}}` }}"
         - name: scriptContent
           value: |
+            set -x
             {{- include "common.envar" . | indent 12 }}
             
             # Set ncn to pxe boot
@@ -212,7 +213,9 @@ tasks:
           value: "{{ `{{inputs.parameters.dryRun}}` }}"
         - name: scriptContent
           value: |
+            set -x
             TARGET_NCN={{ `{{inputs.parameters.targetNcn}}` }}
+            echo "TARGET_NCN=${TARGET_NCN}"
 
             set +e
             echo "waiting for k8s: $TARGET_NCN ..."

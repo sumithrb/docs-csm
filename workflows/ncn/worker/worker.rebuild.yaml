@@ -102,6 +102,7 @@ spec:
                   value: "{{$.DryRun}}"  
                 - name: scriptContent
                   value: |
+                    set -x
                     source /srv/cray/scripts/metal/metal-lib.sh
                     csi_url=$(paginate "https://packages.local/service/rest/v1/components?repository=csm-sle-15sp3" \
                       | jq -r  '.items[] | .assets[] | .downloadUrl' | grep "cray-site-init" | sort -V | tail -1)
@@ -116,6 +117,7 @@ spec:
                   value: "{{$.DryRun}}"  
                 - name: scriptContent
                   value: |
+                    set -x
                     targetNcns="{{.TargetNcns}}"
                     # remove '[' and ']'
                     targetNcns=${targetNcns:1:-1}
@@ -133,12 +135,14 @@ spec:
                         break
                       fi
                     done
+                    echo "nodeMoveTo=${nodeMoveTo}"
 
                     echo
 
                     pods=( "nexus" "ipxe" "kea" "cray-cfs-api-db" )
                     for pod in ${pods[@]};do
                       podName=$(kubectl get pods --all-namespaces | awk '{print $2}' | grep $pod)
+                      echo "pod=${pod}, podName=${podName}"
                       if [[ -z $podName ]];then
                         echo "Couldn't not find pod: $pod"
                         echo "something is wrong"
@@ -146,6 +150,7 @@ spec:
                       fi                 
                       
                       currentNode=$(kubectl get po -A -o wide | grep $podName | awk '{print $8}')
+                      echo "currentNode=${currentNode}"
                       if [[ "$nodeMoveTo" != "$currentNode" ]]; then
                         echo "Move Pod: $podName to Node: $nodeMoveTo"
                         /opt/cray/platform-utils/move_pod.sh $podName $nodeMoveTo > /dev/null
@@ -153,6 +158,7 @@ spec:
 
                       podName=$(kubectl get pods --all-namespaces | awk '{print $2}' | grep $pod)
                       ns=$(kubectl get po -A | grep $podName | awk '{print $1}')
+                      echo "pod=${pod}, podName=${podName} ns=${ns}"
                       kubectl wait --for=condition=ready pod $podName -n $ns --timeout=5m
                     done
           {{- range $index,$value := .TargetNcns }}
