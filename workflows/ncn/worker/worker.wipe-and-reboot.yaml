@@ -34,7 +34,6 @@ tasks:
         - name: scriptContent
           value: |
             {{- include "common.envar" . | indent 12 }}
-            set -x
             echo "TARGET_NCN = ${TARGET_NCN}"
             echo "TARGET_XNAME=${TARGET_XNAME}"
             echo "TARGET_MGMT_XNAME=${TARGET_MGMT_XNAME}"
@@ -85,7 +84,6 @@ tasks:
         - name: scriptContent
           value: |
             {{- include "common.envar" . | indent 12 }}
-            set -x
             echo "TARGET_NCN = ${TARGET_NCN}"
             echo "TARGET_XNAME=${TARGET_XNAME}"
             echo "TARGET_MGMT_XNAME=${TARGET_MGMT_XNAME}"
@@ -117,7 +115,6 @@ tasks:
         - name: scriptContent
           value: |
             {{- include "common.envar" . | indent 12 }}
-            set -x
             echo "TARGET_NCN = ${TARGET_NCN}"
             echo "TARGET_XNAME=${TARGET_XNAME}"
             echo "TARGET_MGMT_XNAME=${TARGET_MGMT_XNAME}"
@@ -146,7 +143,6 @@ tasks:
         - name: scriptContent
           value: |
             {{- include "common.envar" . | indent 12 }}
-            set -x
             echo "TARGET_NCN = ${TARGET_NCN}"
             echo "TARGET_XNAME=${TARGET_XNAME}"
             echo "TARGET_MGMT_XNAME=${TARGET_MGMT_XNAME}"
@@ -198,7 +194,6 @@ tasks:
         - name: scriptContent
           value: |
             {{- include "common.envar" . | indent 12 }}
-            set -x
             echo "TARGET_NCN = ${TARGET_NCN}"
             echo "TARGET_XNAME=${TARGET_XNAME}"
             echo "TARGET_MGMT_XNAME=${TARGET_MGMT_XNAME}"
@@ -235,7 +230,6 @@ tasks:
           value: "{{ `{{inputs.parameters.dryRun}}` }}"
         - name: scriptContent
           value: |
-            set -x
             TARGET_NCN={{ `{{inputs.parameters.targetNcn}}` }}
             echo "TARGET_NCN=${TARGET_NCN}"
 
@@ -266,7 +260,6 @@ tasks:
         - name: scriptContent
           value: |
             {{- include "common.envar" . | indent 12 }}
-            set -x
             echo "TARGET_NCN = ${TARGET_NCN}"
             echo "TARGET_XNAME=${TARGET_XNAME}"
             echo "TARGET_MGMT_XNAME=${TARGET_MGMT_XNAME}"

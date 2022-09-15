@@ -102,7 +102,6 @@ spec:
                   value: "{{$.DryRun}}"  
                 - name: scriptContent
                   value: |
-                    set -x
                     source /srv/cray/scripts/metal/metal-lib.sh
                     csi_url=$(paginate "https://packages.local/service/rest/v1/components?repository=csm-sle-15sp3" \
                       | jq -r  '.items[] | .assets[] | .downloadUrl' | grep "cray-site-init" | sort -V | tail -1)
@@ -117,7 +116,6 @@ spec:
                   value: "{{$.DryRun}}"  
                 - name: scriptContent
                   value: |
-                    set -x
                     targetNcns="{{.TargetNcns}}"
                     # remove '[' and ']'
                     targetNcns=${targetNcns:1:-1}

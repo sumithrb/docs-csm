@@ -33,7 +33,6 @@ tasks:
           value: "{{ `{{inputs.parameters.dryRun}}` }}"
         - name: scriptContent
           value: |
-            set -x
             TARGET_NCN={{ `{{inputs.parameters.targetNcn}}` }}
             echo "TARGET_NCN=${TARGET_NCN}"
             TARGET_XNAME=$(curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/sls/v1/search/hardware?extra_properties.Role=Management" | \
@@ -47,10 +46,13 @@ tasks:
             # Retry CFS command if needed
             COUNT=0
             while true; do
+                date
+                echo "get comp"
                 curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components/${TARGET_XNAME}" > ${TMPFILE}
                 rc=$?
                 cat ${TMPFILE}
                 echo "rc = $rc"
+                date
                 ENABLED=$(cat ${TMPFILE} | jq -r '.enabled') && break
                 let COUNT+=1
                 if [[ ${COUNT} -gt 12 ]]; then
@@ -72,10 +74,13 @@ tasks:
             # Retry CFS command if needed
             COUNT=0
             while true; do
+                date
+                echo "get comp"
                 curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components/${TARGET_XNAME}" > ${TMPFILE}
                 rc=$?
                 cat ${TMPFILE}
                 echo "rc = $rc"
+                date
                 DESIRED_CONFIG=$(cat ${TMPFILE} | jq -r '.desiredConfig') && break
                 let COUNT+=1
                 if [[ ${COUNT} -gt 12 ]]; then
@@ -92,10 +97,13 @@ tasks:
             echo "Desired configuration for CFS component '${TARGET_XNAME}' is '${DESIRED_CONFIG}'"
 
             while true; do
+              date
+              echo "get pend"
               curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components?ids=${TARGET_XNAME}&status=pending" > ${TMPFILE}
               rc=$?
               cat ${TMPFILE}
               echo "rc = $rc"
+              date              
               RESULT=$(cat ${TMPFILE} | jq length)
               echo "RESULT=$RESULT"
               if [[ "$RESULT" -eq 0 ]]; then
@@ -105,22 +113,31 @@ tasks:
               sleep 30
             done
 
+            date
+            echo "get conf"
             curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components?ids=${TARGET_XNAME}&status=configured" > ${TMPFILE}
             rc=$?
             cat ${TMPFILE}
             echo "rc = $rc"
+            date
             CONFIGURED=$(cat ${TMPFILE} | jq length)
+            date
+            echo "get failed"
             curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components?ids=${TARGET_XNAME}&status=failed" > ${TMPFILE}
             rc=$?
             cat ${TMPFILE}
             echo "rc = $rc"
+            date
             FAILED=$(cat ${TMPFILE} | jq length)
             echo "Configuration complete. $CONFIGURED component(s) completed successfully.  $FAILED component(s) failed."
             if [ "$FAILED" -ne "0" ]; then
+              date
+              echo "get failed"
               curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components?ids=${TARGET_XNAME}&status=failed" > ${TMPFILE}
               rc=$?
               cat ${TMPFILE}
               echo "rc = $rc"
+              date
               echo "The following components failed: $(cat ${TMPFILE}  | jq -r '. | map(.id) | join(",")')"
               exit 1
             fi
@@ -136,23 +153,24 @@ tasks:
           value: "{{ `{{inputs.parameters.dryRun}}` }}"
         - name: scriptContent
           value: |
-            set -x            
             TARGET_NCN={{ `{{inputs.parameters.targetNcn}}` }}            
             echo "TARGET_NCN=${TARGET_NCN}"
             TARGET_XNAME=$(curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/sls/v1/search/hardware?extra_properties.Role=Management" | \
                 jq -r ".[] | select(.ExtraProperties.Aliases[] | contains(\"$TARGET_NCN\")) | .Xname")
             echo "TARGET_XNAME=${TARGET_XNAME}"
 
+            date
             curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components/${TARGET_XNAME}"
             echo "rc = $?"
-
+            date
             curl -s -k -H "Authorization: Bearer ${TOKEN}" -X PATCH "https://api-gw-service-nmn.local/apis/cfs/v2/components/${TARGET_XNAME}" \
               -H 'Content-Type: application/json' \
               -d '{"enabled": false, "state": []}'
             echo "rc = $?"
-
+            date
             curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components/${TARGET_XNAME}"
             echo "rc = $?"
+            date
   - name: ensure-etcd-pods-are-healthy
     templateRef:
       name: ssh-template
@@ -163,7 +181,6 @@ tasks:
           value: "{{ `{{inputs.parameters.dryRun}}` }}"
         - name: scriptContent
           value: |
-            set -x
             TMPFILE=/tmp/tmpout.$(date +%Y%m%d_%H%M%S).$$.$RANDOM
             echo "TMPFILE=${TMPFILE}"
 
@@ -218,7 +235,6 @@ tasks:
           value: "{{ `{{inputs.parameters.dryRun}}` }}"
         - name: scriptContent
           value: |
-            set -x
             export GOSS_BASE=/opt/cray/tests/install/ncn
             GOSS_ARG="--vars=/opt/cray/tests/install/ncn/vars/variables-ncn.yaml validate \
               --retry-timeout 1h \
@@ -241,7 +257,6 @@ tasks:
           value: "{{ `{{inputs.parameters.dryRun}}` }}"
         - name: scriptContent
           value: |
-            set -x
             labels=( "cray-bss" "cray-scsd" )
             for label in ${labels[@]};do
               while true; do
@@ -266,7 +281,6 @@ tasks:
         - name: scriptContent
           value: |
             {{- include "common.envar" . | indent 12 }}
-            set -x
             echo "TARGET_NCN = ${TARGET_NCN}"
             echo "TARGET_XNAME=${TARGET_XNAME}"
             echo "TARGET_MGMT_XNAME=${TARGET_MGMT_XNAME}"
@@ -307,7 +321,6 @@ tasks:
           value: "{{ `{{inputs.parameters.dryRun}}` }}"
         - name: scriptContent
           value: |
-            set -x
             kubectl get node {{ `{{inputs.parameters.targetNcn}}` }} || res=$?
             echo "rc = $res"
             # only delete a ncn that exists in cluster
@@ -326,7 +339,6 @@ tasks:
           value: "{{ `{{inputs.parameters.dryRun}}` }}"
         - name: scriptContent
           value: |
-            set -x
             TMPFILE=/tmp/tmpout.$(date +%Y%m%d_%H%M%S).$$.$RANDOM
             echo "TMPFILE=${TMPFILE}"
             while true; do
@@ -361,7 +373,6 @@ tasks:
           value: "{{ `{{inputs.parameters.dryRun}}` }}"
         - name: scriptContent
           value: |
-            set -x
             TARGET_NCN={{ `{{inputs.parameters.targetNcn}}` }}
             echo "TARGET_NCN=$TARGET_NCN"
             TARGET_XNAME=$(curl -s -k -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/sls/v1/search/hardware?extra_properties.Role=Management" | \
