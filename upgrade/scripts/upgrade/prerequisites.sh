@@ -638,7 +638,7 @@ else
     echo "====> ${state_name} has been completed"
 fi
 
-state_name="UPDATE NCN KERNEL PARAMETERS"
+state_name="UPDATE_NCN_KERNEL_PARAMETERS"
 #shellcheck disable=SC2046
 state_recorded=$(is_state_recorded "${state_name}" $(hostname))
 if [[ $state_recorded == "0" && $(hostname) == "ncn-m001" ]]; then
