@@ -16,7 +16,7 @@ This document describes the configuration of a Kubernetes NCN image. The same st
     ```bash
     ARTIFACT_VERSION=<artifact-version>
 
-    cray artifacts get boot-images "k8s/${ARTIFACT_VERSION}/rootfs" "./${ARTIFACT_VERSION}-rootfs"
+    cray artifacts get boot-images "k8s/${ARTIFACT_VERSION}/filesystem.squashfs" "./${ARTIFACT_VERSION}-filesystem.squashfs"
 
     cray artifacts get boot-images "k8s/${ARTIFACT_VERSION}/kernel" "./${ARTIFACT_VERSION}-kernel"
 
