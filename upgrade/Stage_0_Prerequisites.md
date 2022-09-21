@@ -226,7 +226,7 @@ There are two possible scenarios. Follow the procedure for the scenario that is 
 
 ### Standard upgrade
 
-In most cases you will be performing a standard upgrade and not a CSM-only system upgrade. The image customization and node personalization steps that should be used come in a later section Stage 2.2. Continue on to Stage 0.4, skipping the CSM-only system upgrade section below.
+In most cases, administrators will be performing a standard upgrade and not a CSM-only system upgrade. The image customization and node personalization steps that should be used come in a later section Stage 2.2. Continue on to Stage 0.4, skipping the CSM-only system upgrade section below.
 
 ### CSM-only system upgrade
 
