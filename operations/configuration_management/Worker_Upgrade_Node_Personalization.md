@@ -35,3 +35,9 @@ The definition of the CFS configuration used for NCN worker node personalization
     ```
 
 1. (`ncn-m#`) Edit the `management-bootprep-node-personalization.yaml` file to replace the CPE and Analytics layer with the playbook, commit hash, and product values already in use on the NCNs for CPE. This must be done because the new version of CPE and Analytics has not yet been installed at this time in the upgrade procedure.
+
+1. (`ncn-m#`) Run `sat bootprep` against the `management-bootprep-node-personalization.yaml` file to create the CFS configuration that will be used for node personalization on worker NCN.
+
+    ```bash
+    sat bootprep run `management-bootprep-node-personalization.yaml`
+    ```

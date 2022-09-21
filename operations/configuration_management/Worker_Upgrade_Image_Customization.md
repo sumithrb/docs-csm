@@ -26,4 +26,11 @@ The definition of the CFS configuration used for NCN worker node Image Customiza
     - name: ncn-image-customization
     ```
 
-1. (`ncn-m#`) Use the `management-bootprep-image-customization.yaml` file as input when customizing the new NCN worker node image with CFS in the CSM documentation.
+1. (`ncn-m#`) Run `sat bootprep` against the `management-bootprep-image-customization.yaml` file to create CFS configuration that will be used to customize the worker image.
+
+    ```bash
+    sat bootprep run management-bootprep-image-customization.yaml
+    ```
+
+1. (`ncn-m#`) Perform the steps in [Management Node Image Customization](Management_Node_Image_Customization.md). Use the CFS configuration created in the previous step when
+    customizing the image.
