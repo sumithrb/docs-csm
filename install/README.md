@@ -85,6 +85,42 @@ See [Create system configuration](pre-installation.md#3-create-system-configurat
 
 ### 5. Configure management network switches
 
+The configuration of the management network switches is partially automated by a tool called CANU which can use a combination of SHCD and SLS data to generate network configuration files based on the current topology of the Shasta system.
+
+Because the switch configuration files are based on the topology data in the system, it is important that the switches be updated if the topology or configuration has changed.
+
+Below is a diagram that visualizes the relationships between the various data sources in the system and CANU.  It is important that if one of these sources changes, all downstream data sources be updated to reflect the change.  Failure to do this can result in mis-aligned network configuration information and other incorrect configurations that will affect one or more aspects of the Shasta system.
+
+```mermaid
+graph TD
+    A[SHCD] --> B[application_node_config.yaml];
+    A --> C[cabinets.yaml];
+    A --> D[hmn_connections.yaml];
+    A --> E[ncn_metadata.csv];
+    A --> F[switch_metatdata.csv];
+    B --> G(Cray Site Init - CSI);
+    C --> G
+    D --> G
+    E --> G
+    F --> G
+    H[system_config.yaml] --> G
+    G --> J[data.json]
+    A --> K[paddle.json - Paddle/CCJ file]
+    G --> L[sls_input_file.json]
+    Z[Custom Switch Configs] --> I
+    L --> I(CANU)
+    A --> I;
+    K --> I;
+    L --> M[SLS API];
+    M --> I;
+    I --> N(Management Switch Configs);
+    J --> O(BSS API)
+    P(site overrides) --> Q(default customizations.yaml)
+    G -->|generated network data| R[Effective customizations.yaml]
+    S[Sealed Secrets] --> R
+    Q --> R
+```
+
 At this point external connectivity has been established, and either bare-metal configurations can
 be installed or new/updated configurations can be applied.
 
