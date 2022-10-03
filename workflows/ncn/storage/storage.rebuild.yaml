@@ -32,7 +32,7 @@ metadata:
 spec:
   podMetadata:
     annotations:
-      sidecar.istio.io/inject: "false"    
+      sidecar.istio.io/inject: "false"
   volumes:
     - name: ssh
       hostPath:
@@ -99,7 +99,7 @@ spec:
             arguments:
               parameters:
                 - name: dryRun
-                  value: "{{$.DryRun}}"  
+                  value: "{{$.DryRun}}"
                 - name: scriptContent
                   value: |
                     ceph auth get client.ro >/dev/null 2>/dev/null || ceph-authtool -C /etc/ceph/ceph.client.ro.keyring -n client.ro --cap mon 'allow r' --cap mds 'allow r' --cap osd 'allow r' --cap mgr 'allow r' --gen-key
@@ -121,7 +121,7 @@ spec:
             templateRef:
               name: ssh-template
               template: shell-script
-            dependencies: 
+            dependencies:
               - check-ceph-ro-key
               - pre-upgrade-ceph-health-check
               # each upgrade depends on previous upgrade action and success
@@ -131,7 +131,7 @@ spec:
             arguments:
               parameters:
                 - name: dryRun
-                  value: "{{$.DryRun}}"  
+                  value: "{{$.DryRun}}"
                 - name: scriptContent
                   value: |
                     /usr/share/doc/csm/upgrade/scripts/upgrade/ncn-upgrade-ceph-nodes.sh {{$value}}
@@ -145,7 +145,7 @@ spec:
             arguments:
               parameters:
                 - name: dryRun
-                  value: "{{$.DryRun}}"  
+                  value: "{{$.DryRun}}"
                 - name: scriptContent
                   value: |
                     /opt/cray/tests/install/ncn/scripts/ceph-service-status.sh -v true
@@ -161,7 +161,7 @@ spec:
             arguments:
               parameters:
                 - name: dryRun
-                  value: "{{$.DryRun}}"  
+                  value: "{{$.DryRun}}"
                 - name: scriptContent
                   value: |
                     grep -oP "(ncn-s\w+)" /etc/hosts | sort -u | xargs -t -i ssh {} 'truncate --size=0 ~/.ssh/known_hosts'
@@ -175,7 +175,7 @@ spec:
             arguments:
               parameters:
                 - name: dryRun
-                  value: "{{$.DryRun}}"  
+                  value: "{{$.DryRun}}"
                 - name: scriptContent
                   value: |
                     . /usr/share/doc/csm/upgrade/scripts/ceph/lib/update_bss_metadata.sh

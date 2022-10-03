@@ -25,8 +25,19 @@
 
 set -e
 basedir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-. ${basedir}/../common/upgrade-state.sh
+
+source "${basedir}"/../common/upgrade-state.sh
+
 trap 'argo_err_report' ERR
+
+# Where we store all our temp dirs/files
+RUNDIR="${TMPDIR:-/tmp}/ncn-upgrade-worker-storage-nodes-$$"
+
+cleanup() {
+    rm -fr "${RUNDIR}"
+}
+
+trap cleanup EXIT
 
 #global vars
 dryRun=false
@@ -86,8 +97,8 @@ while [[ $# -gt 0 ]]; do
         nodeType="storage"
         ;;
     *)
-        echo 
-        echo "Unknown option $1" 
+        echo
+        echo "Unknown option $1"
         usage
         exit 1
         ;;
@@ -99,13 +110,17 @@ if $retry && $force; then
     retry=false
 fi
 
+mkrundir() {
+  install -dm755 "${RUNDIR}"
+}
+
 function uploadWorkflowTemplates() {
     "${basedir}"/../../../workflows/scripts/upload-rebuild-templates.sh
 }
 
 function createWorkflowPayload() {
     if [[ ${nodeType} == "worker" ]]
-    then    
+    then
         # ask for switch password if it's not set
         if [[ -z "${SW_ADMIN_PASSWORD}" ]]; then
         read -r -s -p "Switch password:" SW_ADMIN_PASSWORD
@@ -120,7 +135,7 @@ function createWorkflowPayload() {
 EOF
     fi
     if [[ ${nodeType} == "storage" ]]
-    then    
+    then
         echo
         cat << EOF
 {
@@ -131,12 +146,20 @@ EOF
     fi
 }
 
+
 function getToken() {
-    # shellcheck disable=SC2155,SC2046
-    curl -k -s -S -d grant_type=client_credentials \
+    mkrundir
+    tokenfile=$(mktemp -p "${RUNDIR}" admin-token-XXXXXXXX)
+    httprc=$(curl -o "${tokenfile}" -k -s -S -d grant_type=client_credentials \
+        -w "%{http_code}" \
         -d client_id=admin-client \
-        -d client_secret=`kubectl get secrets admin-client-auth -o jsonpath='{.data.client-secret}' | base64 -d` \
-        "${baseUrl}"/keycloak/realms/shasta/protocol/openid-connect/token | jq -r '.access_token'
+        -d client_secret="$(kubectl get secrets admin-client-auth -o jsonpath='{.data.client-secret}' | base64 -d)" \
+        "${baseUrl}"/keycloak/realms/shasta/protocol/openid-connect/token 2>&1)
+
+    debugCurl getTokenAuthSecret $? "${httprc}" "${tokenfile}"
+    debugJq getTokenAuthSecret "${tokenfile}"
+
+    jq -r '.access_token' < "${tokenfile}"
 }
 
 function printCmdArgs() {
@@ -151,47 +174,47 @@ function printCmdArgs() {
 }
 
 function getUnsucceededRebuildWorkflows() {
-    res_file=$(mktemp)
+    mkrundir
+    resfile=$(mktemp -p "${RUNDIR}" unsuccessful-rebuild-workflows-XXXXXXXX)
+
     local labelSelector="node-type=${nodeType},workflows.argoproj.io/phase!=Succeeded"
-    http_code=$(curl -s -o "${res_file}" -w "%{http_code}" -k -XGET -H "Authorization: Bearer $(getToken)" "${baseUrl}/apis/nls/v1/workflows?labelSelector=${labelSelector}")
-    if [[ ${http_code} -ne 200 ]]; then
-        echo "Request Failed, Response code: ${http_code}"
-        cat "${res_file}"
-        exit 1
-    fi
-    jq -r ".[]? | .name?" < "${res_file}"
+    httprc=$(curl -s -o "${resfile}" -w "%{http_code}" -k -XGET -H "Authorization: Bearer $(getToken)" "${baseUrl}/apis/nls/v1/workflows?labelSelector=${labelSelector}" 2>&1)
+
+    debugCurl getUnsucceededRebuildWorkflowsCurl "${?}" "${httprc}" "${resfile}"
+    debugJq getUnsucceededRebuildWorkflowsCurl "${resfile}"
+
+    jq -r ".[]? | .name?" < "${resfile}"
 }
 
 function createRebuildWorkflow() {
-    res_file=$(mktemp)
-    http_code=$(curl -s -o "${res_file}" -w "%{http_code}" -k -XPOST -H "Authorization: Bearer $(getToken)" -H 'Content-Type: application/json' -d "$(createWorkflowPayload)" "${baseUrl}/apis/nls/v1/ncns/rebuild")
-    if [[ ${http_code} -ne 200 ]]; then
-        echo "Request Failed, Response code: ${http_code}"
-        cat "${res_file}"
-        exit 1
-    fi
+    mkrundir
+    resfile=$(mktemp -p "${RUNDIR}" create-rebuild-workflow-XXXXXXXX)
+
+    httprc=$(curl -s -o "${resfile}" -w "%{http_code}" -k -XPOST -H "Authorization: Bearer $(getToken)" -H 'Content-Type: application/json' -d "$(createWorkflowPayload)" "${baseUrl}/apis/nls/v1/ncns/rebuild" 2>&1)
+
+    debugCurl createRebuildWorkflowCurl $? "${httprc}" "${resfile}"
+
     local workflow
-    workflow=$(grep -o 'ncn-lifecycle-rebuild-[a-z0-9]*' < "${res_file}" )
+    workflow=$(grep -o 'ncn-lifecycle-rebuild-[a-z0-9]*' < "${resfile}" )
     echo "${workflow}"
 }
 
 function deleteRebuildWorkflow() {
-    res_file=$(mktemp)
-    http_code=$(curl -s -o "${res_file}" -w "%{http_code}" -k -XDELETE -H "Authorization: Bearer $(getToken)" "${baseUrl}/apis/nls/v1/workflows/${1}")
-    if [[ ${http_code} -ne 200 ]]; then
-        echo "Request Failed, Response code: ${http_code}"
-        cat "${res_file}"
-        exit 1
-    fi
+    mkrundir
+    resfile=$(mktemp -p "${RUNDIR}" create-rebuild-workflow-XXXXXXXX)
+
+    httprc=$(curl -s -o "${resfile}" -w "%{http_code}" -k -XDELETE -H "Authorization: Bearer $(getToken)" "${baseUrl}/apis/nls/v1/workflows/${1}" 2>&1)
+
+    debugCurl deleteRebuildWorkflowCurl $? "${httprc}" "${resfile}"
 }
 
 function retryRebuildWorkflow() {
-    res_file=$(mktemp)
-    http_code=$(curl -s -o "${res_file}" -w "%{http_code}" -k -XPUT -H "Authorization: Bearer $(getToken)" "${baseUrl}/apis/nls/v1/workflows/${1}/retry" -d '{}')
-    if [[ ${http_code} -ne 200 ]]; then
-        echo "Request Failed, Response code: ${http_code}"
-        cat "${res_file}"
-    fi
+    mkrundir
+    resfile=$(mktemp -p "${RUNDIR}" create-rebuild-workflow-XXXXXXXX)
+
+    http=$(curl -s -o "${resfile}" -w "%{http_code}" -k -XPUT -H "Authorization: Bearer $(getToken)" "${baseUrl}/apis/nls/v1/workflows/${1}/retry" -d '{}' 2>&1)
+
+    debugCurl deleteRebuildWorkflowCurl $? "${httprc}" "${resfile}"
 }
 
 printCmdArgs
@@ -231,7 +254,7 @@ fi
 if [[ -z "${workflow}" ]]; then
     echo
     echo "No workflow to pull, something is wrong"
-else 
+else
     echo
     echo "Poll status of: ${workflow}"
 fi
@@ -241,11 +264,19 @@ sleep 20
 # poll
 while true; do
     labelSelector="node-type=${nodeType}"
-    res_file="$(mktemp)"
-    http_status=$(curl -s -o "${res_file}" -w "%{http_code}" -k -XGET -H "Authorization: Bearer $(getToken)" "${baseUrl}/apis/nls/v1/workflows?labelSelector=${labelSelector}")
-    
-    if [ "${http_status}" -eq 200 ]; then
-        phase=$(jq -r ".[] | select(.name==\"${workflow}\") | .status.phase" < "${res_file}")
+    mkrundir
+    resfile=$(mktemp -p "${RUNDIR}" ncn-upgrade-worker-storage-nodes-XXXXXXXX)
+
+    httprc=$(curl -s -o "${resfile}" -w "%{http_code}" -k -XGET -H "Authorization: Bearer $(getToken)" "${baseUrl}/apis/nls/v1/workflows?labelSelector=${labelSelector}" 2>&1)
+
+    # Fake the http return code as non 200 will exit in the debugCurl call
+    debugCurl ncnUpgradeWorkerStorageCurlWhile "${?}" 200 "${resfile}"
+
+    if [ "${httprc}" -eq 200 ]; then
+        # Break if jq cannot parse the output
+        debugJq ncnUpgradeWorkerStorageJqWhile "${resfile}"
+
+        phase=$(jq -r ".[] | select(.name==\"${workflow}\") | .status.phase" < "${resfile}")
         # skip null because workflow hasn't started yet
         if [[ "${phase}" == "null" ]]; then
             continue;
@@ -265,13 +296,15 @@ while true; do
             echo "Workflow in Error state, Retry ..."
             retryRebuildWorkflow "$workflow"
         fi
-        runningSteps=$(jq -jr ".[] | select(.name==\"${workflow}\") | .status.nodes[] | select(.type==\"Retry\")| select(.phase==\"Running\")  | .name + \"\n  \" " < "${res_file}")
-        succeededSteps=$(jq -jr ".[] | select(.name==\"${workflow}\") | .status.nodes[] | select(.type==\"Retry\")| select(.phase==\"Succeeded\")  | .name +\"\n  \" " < "${res_file}")
+        runningSteps=$(jq -jr ".[] | select(.name==\"${workflow}\") | .status.nodes[] | select(.type==\"Retry\")| select(.phase==\"Running\")  | .name + \"\n  \" " < "${resfile}")
+        succeededSteps=$(jq -jr ".[] | select(.name==\"${workflow}\") | .status.nodes[] | select(.type==\"Retry\")| select(.phase==\"Succeeded\")  | .name +\"\n  \" " < "${resfile}")
         clear
         printf "\n%s\n" "Succeeded:"
         echo "  ${succeededSteps}" | awk -F'.' '{print $2" -  "$3}'
         printf "%s\n" "${phase}:"
         echo "  ${runningSteps}"  | awk -F'.' '{print $2" -  "$3}'
         sleep 10
+    else
+        printf "warn: poll loop http return code is not 200 got: %s\n" "${httprc}" >&2
     fi
 done
