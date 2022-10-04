@@ -22,14 +22,10 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 
-# DO NOT EDIT ANYTHING BETWEEN THE THUNK COMMENTS DIRECTLY!
-# run make thunks
-# at the top level directory to update all thunks in all
-# files at once
-#__beginthunk__ lib/lib.sh
-#__endthunk__ lib/lib.sh
 
 {{define "common.envar"}}
+
+{{- include "lib.sh" }}
 
 tmpfile=$(libtmpfile common-envvar)
 
@@ -39,25 +35,25 @@ curl --output "${tmpfile}" -S -d grant_type=client_credentials \
    -d client_secret=`kubectl get secrets admin-client-auth -o jsonpath='{.data.client-secret}' | base64 -d` \
    https://api-gw-service-nmn.local/keycloak/realms/shasta/protocol/openid-connect/token
 
-   # REVIEW: fatal too
+# REVIEW: Default fatal
 TOKEN=$(jq -r '.access_token' "${tmpfile}")
 
 TARGET_NCN={{ `{{inputs.parameters.targetNcn}}` }}
 
-# REVIEW: also fatal I think
+# REVIEW: Default fatal
 curl --output "${tmpfile}" -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/sls/v1/search/hardware?extra_properties.Role=Management"
 
-# REVIEW: Also fatal
+# REVIEW: Default fatal
 TARGET_XNAME=$(jq -r ".[] | select(.ExtraProperties.Aliases[] | contains(\"$TARGET_NCN\")) | .Xname" "${tmpfile}")
 
+# REVIEW: Default fatal
 curl --output "${tmpfile}" -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/sls/v1/search/hardware?extra_properties.Role=Management"
-TARGET_MGMT_XNAME=$(jq -r ".[] | select(.ExtraProperties.Aliases[] | contains(\"$TARGET_NCN\")) | .Parent" "${tmpfile)
+TARGET_MGMT_XNAME=$(jq -r ".[] | select(.ExtraProperties.Aliases[] | contains(\"$TARGET_NCN\")) | .Parent" "${tmpfile}")
 
 TARGET_NCN_mgmt_host="${TARGET_NCN}-mgmt"
 
-# REVIEW: fatal too no? for all this
+# REVIEW: Default fatal
 curl --output "${tmpfile}" -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/scsd/v1/bmc/creds"
-
 export IPMI_USERNAME=$(jq -r ".Targets[] | select(.Xname | contains(\"$TARGET_MGMT_XNAME\")) | .Username" "${tmpfile}")
 curl --outtput "${tmpfile} -H "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/scsd/v1/bmc/creds"
 export IPMI_PASSWORD=$(jq -r ".Targets[] | select(.Xname | contains(\"$TARGET_MGMT_XNAME\")) | .Password" "${tmpfile}")

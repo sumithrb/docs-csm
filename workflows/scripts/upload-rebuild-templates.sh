@@ -29,6 +29,7 @@ basedir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 trap libcleanup EXIT
 
+JQFN=printjqoutputonok
 JQTESTFAILFN=exitonjqtestfailure
 
 function main() {
@@ -42,6 +43,7 @@ function main() {
     # More shellcheck nonsense about quotes for the variable that never go away
     # with quotes and isn't valid anyway.
     #shellcheck disable=SC2086
+    # REVIEW: I presume we bail here from jq not reading things if it isn't json
     kubectl -n argo annotate --overwrite pods "$(jq -r '.items[] | .metadata.name' ${tmpfile})" \
             updated="$(date +%s)"
 }

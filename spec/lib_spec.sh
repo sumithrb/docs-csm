@@ -105,23 +105,25 @@ EOF
   Context 'curl wrapper informational output hook'
     Before 'hooksetup'
     hooksetup() {
-        export CURLFN=echocommand
+        export CURLFN=returnoncurlfailure
     }
     curl() {
-      %text
-      #|200
-      return 0
+      printf "000\n" >&2
+      return 42
     }
     result() {
         %text
-        #|info: curl uri://ok
-        #|rc = 0
-        #|output = 200
+        #|command:
+        #|curl uri://ok
+        #|rc:
+        #|42
+        #|output:
+        #|000
     }
     It 'wraps curl and prints'
       When call sutcurl uri://ok
-      The status should equal 0
-      The stdout should equal "$(result)"
+      The status should equal 42
+      The stderr should equal "$(result)"
     End
   End
 
@@ -160,16 +162,24 @@ EOF
     Before 'hooksetup'
     hooksetup() {
         export JQFN=printjqoutputonok
-        export JQTESTFAILFN=printreturnonjqtestfailure
+        export JQTESTFAILFN=jqretry
     }
+    result() {
+      cat <<EOF
+command:
+jq . ${notjson}
+rc: 4
+output: parse error: Invalid numeric literal at line 1, column 2
+file ${notjson} content:
+I am not json
+EOF
+        %text
+    }
+
     It 'wraps jq and prints output'
       When call sutjq '.' "${notjson}"
       The status should equal 4
-      The stderr should equal "input file ${notjson} not json
-jq error:
-parse error: Invalid numeric literal at line 1, column 2
-content:
-I am not json"
+      The stderr should equal "$(result)"
     End
   End
 End

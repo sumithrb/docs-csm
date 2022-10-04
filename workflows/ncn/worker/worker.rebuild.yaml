@@ -102,12 +102,8 @@ spec:
                   value: "{{$.DryRun}}"
                 - name: scriptContent
                   value: |
-                    # DO NOT EDIT ANYTHING BETWEEN THE THUNK COMMENTS DIRECTLY!
-                    # run make thunks
-                    # at the top level directory to update all thunks in all
-                    # files at once
-                    #__beginthunk__ lib/lib.sh
-                    #__endthunk__ lib/lib.sh
+                    {{- include "lib.sh" . | indent 20 }}
+
                     source /srv/cray/scripts/metal/metal-lib.sh
 
                     tmpfile=$(libtmpfile install-csi)

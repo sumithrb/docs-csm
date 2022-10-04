@@ -33,12 +33,9 @@ tasks:
           value: "{{ `{{inputs.parameters.dryRun}}` }}"
         - name: scriptContent
           value: |
-            # DO NOT EDIT ANYTHING BETWEEN THE THUNK COMMENTS DIRECTLY!
-            # run make thunks
-            # at the top level directory to update all thunks in all
-            # files at once
-            #__beginthunk__ lib/lib.sh
-            #__endthunk__ lib/lib.sh
+            {{- include "lib.sh" | indent 12 }}
+
+            trap libcleanup EXIT
 
             tmpfile=$(libtmpfile update-bss-no-wipe)
 
@@ -60,21 +57,18 @@ tasks:
           value: "{{ `{{inputs.parameters.dryRun}}` }}"
         - name: scriptContent
           value: |
-            # DO NOT EDIT ANYTHING BETWEEN THE THUNK COMMENTS DIRECTLY!
-            # run make thunks
-            # at the top level directory to update all thunks in all
-            # files at once
-            #__beginthunk__ lib/lib.sh
-            #__endthunk__ lib/lib.sh
+            {{- include "lib.sh" | indent 12 }}
+
+            trap libcleanup EXIT
 
             tmpfile=$(libtmpfile update-bss-no-wipe)
 
             TARGET_NCN={{ `{{inputs.parameters.targetNcn}}` }}
 
-            # REVIEW: Curl fatal at this point? Seems yes to me.
+            # REVIEW: Default fatal
             curl --output "${tmpfile}" --header "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/sls/v1/search/hardware?extra_properties.Role=Management"
 
-            # REVIEW: jq failing here seems critical
+            # REVIEW: Default fatal
             TARGET_XNAME=$(jq -r ".[] | select(.ExtraProperties.Aliases[] | contains(\"$TARGET_NCN\")) | .Xname" "${tmpfile}")
 
             # REVIEW: No longer needed, and likely shouldn't be used
@@ -85,10 +79,16 @@ tasks:
                 # Retry CFS command if needed
                 COUNT=0
                 while true; do
-                    # REVIEW: This likely is failable?
+                    # REVIEW: In a retry loop so we'll use the non exit() version of hooks
+                    #shellcheck disable=SC2034
+                    CURLFN=curlretry
+
                     curl --output "${tmpfile}" --header "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components/${TARGET_XNAME}"
 
-                    # REVIEW: This also looks failable
+                    # REVIEW: In a retry loop so we'll use the non exit() version of hooks
+                    #shellcheck disable=SC2034
+                    JQTESTFAILFN=jqretry
+
                     ENABLED=$(jq -r '.enabled' "${tmpfile}") && break
                     let COUNT+=1
                     if [[ ${COUNT} -gt 12 ]]; then
@@ -113,10 +113,16 @@ tasks:
             # Retry CFS command if needed
             COUNT=0
             while true; do
-                # REVIEW: This likely is failable?
+                # REVIEW: In a retry loop so we'll use the non exit() version of hooks
+                #shellcheck disable=SC2034
+                CURLFN=curlretry
+
                 curl --output "${tmpfile}" "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components/${TARGET_XNAME}"
 
-                # REVIEW: jq failing here seems failable?
+                # REVIEW: In a retry loop so we'll use the non exit() version of hooks
+                #shellcheck disable=SC2034
+                JQTESTFAILFN=jqretry
+
                 DESIRED_CONFIG=$(jq -r '.desiredConfig' "${tmpfile}") && break
                 let COUNT+=1
                 if [[ ${COUNT} -gt 12 ]]; then
@@ -132,10 +138,15 @@ tasks:
             echo "Desired configuration for CFS component '${TARGET_XNAME}' is '${DESIRED_CONFIG}'"
 
             while true; do
-              # REVIEW: This likely is failable?
+              # REVIEW: In a retry loop so we'll use the non exit() version of hooks
+              #shellcheck disable=SC2034
+              CURLFN=curlretry
               curl --output "${tmpfile}" --header "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components?ids=${TARGET_XNAME}&status=pending")
 
-              # REVIEW: Failable as well?
+              # REVIEW: In a retry loop so we'll use the non exit() version of hooks
+              #shellcheck disable=SC2034
+              JQTESTFAILFN=jqretry
+
               RESULT=$(jq length "${tmpfile}")
               if [[ "$RESULT" -eq 0 ]]; then
                 break
@@ -144,16 +155,20 @@ tasks:
               sleep 30
             done
 
-            # REVIEW: Fatal failure if curl dies here?
+            # Set hooks back to the exit versions.
+            CURLFN=curlfatal
+            JQTESTFAILFN=jqfatal
+
+            # REVIEW: Default fatal
             curl --output "${tmpfile}" --header "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components?ids=${TARGET_XNAME}&status=configured"
 
-            # REVIEW: Fatail if jq fails? informational so I think maybe
+            # REVIEW: Default fatal
             CONFIGURED=$(jq length "${tmpfile}")
 
-            # REVIEW: Fatal here too?
+            # REVIEW: Default fatal
             curl --output "${tmpfile}" --header  "Authorization: Bearer ${TOKEN}" "https://api-gw-service-nmn.local/apis/cfs/v2/components?ids=${TARGET_XNAME}&status=failed"
 
-            # REVIEW: Same here if this isn't json
+            # REVIEW: Default fatal
             FAILED=$(jq length "${tmpfile}")
             echo "Configuration complete. $CONFIGURED component(s) completed successfully.  $FAILED component(s) failed."
             if [ "$FAILED" -ne "0" ]; then
