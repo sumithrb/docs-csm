@@ -93,16 +93,12 @@ Below is a diagram that visualizes the relationships between the various data so
 
 ```mermaid
 graph TD
-    A[SHCD] --> B[application_node_config.yaml];
-    A --> C[cabinets.yaml];
-    A --> D[hmn_connections.yaml];
-    A --> E[ncn_metadata.csv];
-    A --> F[switch_metatdata.csv];
-    B --> G(Cray Site Init - CSI);
-    C --> G
+    A[SHCD] --> D[hmn_connections.json];
+    B[application_node_config.yaml] --> G(Cray Site Init - CSI);
+    C[cabinets.yaml] --> G
     D --> G
-    E --> G
-    F --> G
+    E[ncn_metadata.csv] --> G
+    F[switch_metatdata.csv] --> G;
     H[system_config.yaml] --> G
     G --> J[data.json]
     A --> K[paddle.json - Paddle/CCJ file]
