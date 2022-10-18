@@ -93,6 +93,10 @@ Below is a diagram that visualizes the relationships between the various data so
 
 ```mermaid
 graph TD
+    Z[Manually Created Files] --> F;
+    Z --> B;
+    Z --> C;
+    Z --> E;
     A[SHCD] --> D[hmn_connections.json];
     B[application_node_config.yaml] --> G(Cray Site Init - CSI);
     C[cabinets.yaml] --> G
