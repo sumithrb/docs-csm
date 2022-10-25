@@ -5,8 +5,10 @@ metadata:
 spec:
   entrypoint: main
   arguments:
-    parameters: # TODO: possible changes
-      - name: properties # from the manifest top level
+    parameters:
+      - name: name
+      - name: version
+      - name: content
   templates:
 ### Main Steps ###
   - name: main
@@ -95,20 +97,19 @@ spec:
       - name: cf_import_gitea_url
         value: "https://api-gw-service-nmn.local/vcs"
       - name: cf_import_product_name
-        value: "{{=jsonpath(workflow.parameters.properties, '$.name.value')}}"
+        value: "{{workflow.parameters.name}}"
       - name: cf_import_product_version
-        value: "{{=jsonpath(workflow.parameters.properties, '$.version.value')}}"
+        value: "{{workflow.parameters.version}}"
       - name: cf_import_gitea_org
         value: cray
       - name: cf_import_content
         value: /content
-      - name: cf_import_force_existing_branch
-        value: True
     container:
-      image: registry.local/artifactory.algol60.net/csm-docker/stable/cf-gitea-import:1.8.0-CASMCMS-8237.1_3d7b99d # PR build with removal of sidecar check
+      # replace image with standard cf-gitea once PR on cf-gitea is merged
+      image: registry.local/artifactory.algol60.net/csm-docker/stable/cf-gitea-import:1.8.0-CASMCMS-8237.1_e808fc2 # PR build with removal of sidecar check
       command:
       - '/bin/sh'
-      args: ["-c", "/opt/csm/cf-gitea-import/entrypoint.sh"]
+      args: ["-c", "/opt/csm/cf-gitea-import/argo_entrypoint.sh"]
       env:
       - name: CF_IMPORT_GITEA_USER
         valueFrom:
@@ -135,17 +136,17 @@ spec:
       volumeMounts:
         - name: content
           mountPath: /content
-        - name: results
+        - name: results # TODO: might not be necessary
           mountPath: /results
-        - name: certs # mount cluster certs to ca-certificates.crt most curl/http libraries use this name specifically
+        - name: certs # mount cluster certs to ca-certificates.crt for curl/http libraries
           mountPath: /etc/ssl/certs/ca-certificates.crt
           subPath: platform-ca-certs.crt
-    volumes: #TODO: Add in actual prod paths
+    volumes:
     - name: content
-      hostPath:
-        path: /root/violaj/test/test1
+      hostPath: #TODO: Figure out how IUF will pass this path
+        path: "{{=jsonpath(workflow.parameters.content, '$.vcs.path')}}"
     - name: results
-      hostPath:
+      hostPath: #TODO: Replace this with actual path
         path: /root/violaj/mnt/results
     - name: certs
       hostPath:
