@@ -105,7 +105,7 @@ spec:
       - name: cf_import_content
         value: /content
     container:
-      # replace image with standard cf-gitea once PR on cf-gitea is merged
+      # TODO: replace image with a stable cf-gitea once PR on cf-gitea is merged
       image: registry.local/artifactory.algol60.net/csm-docker/stable/cf-gitea-import:1.8.0-CASMCMS-8237.1_e808fc2 # PR build with removal of sidecar check
       command:
       - '/bin/sh'
@@ -136,7 +136,7 @@ spec:
       volumeMounts:
         - name: content
           mountPath: /content
-        - name: results # TODO: might not be necessary
+        - name: results
           mountPath: /results
         - name: certs # mount cluster certs to ca-certificates.crt for curl/http libraries
           mountPath: /etc/ssl/certs/ca-certificates.crt
@@ -145,9 +145,9 @@ spec:
     - name: content
       hostPath: #TODO: Figure out how IUF will pass this path
         path: "{{=jsonpath(workflow.parameters.content, '$.vcs.path')}}"
-    - name: results
-      hostPath: #TODO: Replace this with actual path
-        path: /root/violaj/mnt/results
+    - name: results #TODO: If admins are allowed to access the results, if not remove this mount
+      hostPath:
+        path: "{{=jsonpath(workflow.parameters.content, '$.vcs.path')}}"
     - name: certs
       hostPath:
         path: /etc/pki/trust/anchors
