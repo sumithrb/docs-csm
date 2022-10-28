@@ -130,8 +130,6 @@ spec:
         value: "{{inputs.parameters.cf_import_gitea_org}}"
       - name: CF_IMPORT_CONTENT
         value: "{{inputs.parameters.cf_import_content}}"
-      - name: CF_IMPORT_FORCE_EXISTING_BRANCH
-        value: "{{inputs.parameters.cf_import_force_existing_branch}}"
       volumeMounts:
         - name: content
           mountPath: /content
