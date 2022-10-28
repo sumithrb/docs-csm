@@ -133,18 +133,13 @@ spec:
       volumeMounts:
         - name: content
           mountPath: /content
-        - name: results
-          mountPath: /results
         - name: certs # mount cluster certs to ca-certificates.crt for curl/http libraries
           mountPath: /etc/ssl/certs/ca-certificates.crt
           subPath: platform-ca-certs.crt
     volumes:
     - name: content
-      hostPath: #TODO: Figure out how IUF will pass this path
-        path: "{{=jsonpath(workflow.parameters.content, '$.vcs.path')}}"
-    - name: results #TODO: If admins are allowed to access the results, if not remove this mount
       hostPath:
-        path: #TODO: if allowed to access the results, what path?
+        path: "{{=jsonpath(workflow.parameters.content, '$.vcs.path')}}"
     - name: certs
       hostPath:
         path: /etc/pki/trust/anchors
