@@ -105,8 +105,7 @@ spec:
       - name: cf_import_content
         value: /content
     container:
-      # TODO: replace image with a stable cf-gitea once PR on cf-gitea is merged
-      image: registry.local/artifactory.algol60.net/csm-docker/stable/cf-gitea-import:1.8.0-CASMCMS-8237.1_e808fc2 # PR build with removal of sidecar check
+      image: registry.local/artifactory.algol60.net/csm-docker/unstable/cf-gitea-import:1.8.0-alpha.16_a2674cd
       command:
       - '/bin/sh'
       args: ["-c", "/opt/csm/cf-gitea-import/argo_entrypoint.sh"]
@@ -147,7 +146,7 @@ spec:
         path: "{{=jsonpath(workflow.parameters.content, '$.vcs.path')}}"
     - name: results #TODO: If admins are allowed to access the results, if not remove this mount
       hostPath:
-        path: "{{=jsonpath(workflow.parameters.content, '$.vcs.path')}}"
+        path: #TODO: if allowed to access the results, what path?
     - name: certs
       hostPath:
         path: /etc/pki/trust/anchors
