@@ -54,4 +54,4 @@ If Unbound is configured with no upstream DNS server to forward requests to, the
 
 **IMPORTANT:** This change will need to be reapplied if the `cray-dns-unbound` helm chart is re-installed.
 
-This will be resolved in CSM 1.3.1 and above.
+This is resolved in CSM 1.3.1 and above.
