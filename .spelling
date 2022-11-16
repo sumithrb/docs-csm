@@ -638,11 +638,8 @@ Zypper
 # Per-file spelling exceptions. Please keep this section sorted in order by filepath, to help make it easier to
 # see if a file already is listed.
 
-- background/README.md
+- background/ncn_kernel.md
 initramFS
-initrd
-overlayFS
-squashFS
 
 - glossary.md
 # To allow 802.3cd/bs
@@ -719,6 +716,9 @@ Admin
 Alerta
 
 - operations/network/dns/DNS.md
+ExternalDNS
+
+- operations/network/dns/Manage_the_DNS_Unbound_Resolver.md
 ExternalDNS
 
 - RELEASE_NOTES.md

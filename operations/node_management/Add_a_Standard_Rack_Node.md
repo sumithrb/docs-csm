@@ -165,7 +165,7 @@ For this procedure, a new object must be created in the SLS and modifications wi
 
 1. (`ncn#`) **If adding a UAN application node**, then remove the IP address reservation for the node in the `CAN` or `CHN` networks.
 
-    **Node** If the the UAN is being replaced within the same rack slot, then this step can be skipped.
+    **Node** If the UAN is being replaced within the same rack slot, then this step can be skipped.
 
     1. Perform a dry-run:
 
@@ -575,7 +575,7 @@ Usually there are two `cray-cps-cm-pm` pods, one on `ncn-w002` and one on `ncn-w
         DESIRED_IP_ADDRESS=10.252.0.26
         ```
 
-    1. Determine the HSM EthenretInterface entry holding onto the desired IP address.
+    1. Determine the HSM EthernetInterface entry holding onto the desired IP address.
 
         ```bash
         cray hsm inventory ethernetInterfaces list --ip-address "${DESIRED_IP_ADDRESS}" --output toml
