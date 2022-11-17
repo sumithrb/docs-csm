@@ -30,6 +30,12 @@ spec:
   arguments:
     parameters:
       - name: product_manifest
+      - name: cf_import_gitea_org
+        value: cray
+      - name: cf_import_content_hostpath
+        value: /content
+      - name: cf_import_results_hostpath
+        value: /results
   templates:
     ### Main Steps ###
     - name: main
@@ -122,9 +128,15 @@ spec:
           - name: cf_import_product_version
             value: "{{=jsonpath(workflow.parameters.product_manifest, '$.current_product.manifest.version')}}"
           - name: cf_import_gitea_org
-            value: cray
+            value: "{{workflow.parameters.cf_import_gitea_org}}"
           - name: cf_import_content
             value: /content
+          - name: cf_import_results
+            value: /results
+          - name: cf_import_content_hostpath
+            value: "{{workflow.parameters.cf_import_content_hostpath}}"
+          - name: cf_import_results_hostpath
+            value: "{{workflow.parameters.cf_import_results_hostpath}}"
       container:
         image: registry.local/artifactory.algol60.net/csm-docker/unstable/cf-gitea-import:1.8.0-alpha.16_a2674cd
         command:
@@ -153,14 +165,18 @@ spec:
             value: "{{inputs.parameters.cf_import_content}}"
         volumeMounts:
           - name: content
-            mountPath: /content
+            mountPath: "{{inputs.parameters.cf_import_content}}"
+          - name: results
+            mountPath: "{{inputs.parameters.cf_import_results}}"
           - name: certs # mount cluster certs to ca-certificates.crt for curl/http libraries
             mountPath: /etc/ssl/certs/ca-certificates.crt
             subPath: platform-ca-certs.crt
       volumes:
         - name: content
           hostPath:
-            path: "{{=jsonpath(workflow.parameters.product_manifest, '$.current_product.manifest.content.docker[0]')}}"
+            path: "{{inputs.parameters.cf_import_content_hostpath}}"
+        - name: results
+          mountPath: "{{inputs.parameters.cf_import_results_hostpath}}"
         - name: certs
           hostPath:
             path: /etc/pki/trust/anchors
