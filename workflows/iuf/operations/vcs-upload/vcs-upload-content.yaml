@@ -174,9 +174,10 @@ spec:
       volumes:
         - name: content
           hostPath:
-            path: "{{inputs.parameters.cf_import_content_hostpath}}"
+            path: "{{=jsonpath(workflow.parameters.product_manifest, '$.current_product.parent_directory')}}"
         - name: results
-          mountPath: "{{inputs.parameters.cf_import_results_hostpath}}"
+          hostPath:
+            path: RBD_MOUNT/<activity> need clarification
         - name: certs
           hostPath:
             path: /etc/pki/trust/anchors
