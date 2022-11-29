@@ -32,7 +32,7 @@ metadata:
 spec:
   podMetadata:
     annotations:
-      sidecar.istio.io/inject: "false"    
+      sidecar.istio.io/inject: "false"
   volumes:
     - name: ssh
       hostPath:
@@ -88,7 +88,33 @@ spec:
             - key: node-role.kubernetes.io/master
               operator: Exists
   entrypoint: main
+  onExit: exit-handler
   templates:
+    - name: exit-handler
+      inputs:
+        artifacts:
+          - name: current-log
+            path: /tmp/argo-logs/current-log
+            s3:
+              bucket: config-data
+              keyFormat: "{{workflow.namespace}}/{{workflow.name}}/{{pod.name}}"
+              endpoint: rgw-vip.nmn:8080
+              insecure: true
+              accessKeySecret:
+                name: config-data-s3-credentials
+                key: access_key
+              secretKeySecret:
+                name: config-data-s3-credentials
+                key: secret_key
+        container:
+          image: alpine:latest
+          command: [sh, -c]
+          args:
+            - |
+              cat /tmp/argo-logs/current-log
+              # this is where I would add the command to add the timestamps
+              # maybe something like
+              awk '{print "{{workflow.creationTimestamp}} - " $0}' /tmp/argo-logs/current-log
     - name: main
       dag:
         tasks:
@@ -101,7 +127,7 @@ spec:
           {{- range $index,$value := .TargetNcns }}
           - name: add-labels-{{$value}}
             template: add-labels
-            arguments: 
+            arguments:
               parameters:
               - name: targetNcn
                 value: {{$value}}
@@ -139,7 +165,7 @@ spec:
           #     we can safely wipe and reboot this node
           #     regardless of what state other nodes are
           - name: wipe-and-reboot-{{$value}}
-            dependencies: 
+            dependencies:
               - drain-{{$value}}
             template: wipe-and-reboot
             arguments:
@@ -164,7 +190,7 @@ spec:
           # post rebuild: parallel
           #     Post rebuild validation can be run in parallel
           - name: post-rebuild-{{$value}}
-            dependencies: 
+            dependencies:
               - after-each-{{$value}}
             template: post-rebuild
             arguments:
