@@ -27,12 +27,12 @@ spec:
               parameters:
               - name: s3_credentials_secret_name
                 value: "{{steps.get-s3-secrets.outputs.parameters.secret_name}}"
-    - - name: ims-update-product-catalog
-        template: update-product-catalog-template
-        arguments:
-          parameters:
-          - name: yaml-content
-            value: "{{steps.ims-upload-content.outputs.parameters.ims_records}}"
+#    - - name: ims-update-product-catalog
+#        template: update-product-catalog-template
+#        arguments:
+#          parameters:
+#          - name: yaml-content
+#            value: "{{steps.ims-upload-content.outputs.parameters.ims_records}}"
 ### Templates ###
 ## get-s3-secrets-template ##
   - name: get-s3-secrets-template
