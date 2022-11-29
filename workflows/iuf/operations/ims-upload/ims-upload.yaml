@@ -159,7 +159,7 @@ spec:
                 name: "{{inputs.parameters.s3_credentials_secret_name}}"
                 key: "ssl_validate"
           - name: AUTH_TOKEN
-            value: "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICItWUtBWHFnX2M5YThzNWNrTnJqWDZZMExtN0ZHMF84c2ZRQldqQ0NMSktzIn0.eyJqdGkiOiIyYWRhNDM2ZS1hOGNkLTQ3NDItYTdhMy0yOWQ0N2IxYWI1ZGUiLCJleHAiOjE3MDEyODkyNjcsIm5iZiI6MCwiaWF0IjoxNjY5NzUzMjY3LCJpc3MiOiJodHRwczovL2FwaS1ndy1zZXJ2aWNlLW5tbi5sb2NhbC9rZXljbG9hay9yZWFsbXMvc2hhc3RhIiwiYXVkIjpbInNoYXN0YSIsImFjY291bnQiXSwic3ViIjoiMzI4ZTRlMDctNjNjYi00OTcxLTk1NjEtZGVkOTdhMGE0MzRhIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoiYWRtaW4tY2xpZW50IiwiYXV0aF90aW1lIjowLCJzZXNzaW9uX3N0YXRlIjoiMDBmYjhmMDgtZjM0Ni00N2U3LWI1NjYtMTc0Yjg4ZGRiMzA0IiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJvZmZsaW5lX2FjY2VzcyIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsic2hhc3RhIjp7InJvbGVzIjpbImFkbWluIl19LCJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6InByb2ZpbGUgZW1haWwiLCJjbGllbnRJZCI6ImFkbWluLWNsaWVudCIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiY2xpZW50SG9zdCI6IjEwLjQ3LjAuMCIsInByZWZlcnJlZF91c2VybmFtZSI6InNlcnZpY2UtYWNjb3VudC1hZG1pbi1jbGllbnQiLCJjbGllbnRBZGRyZXNzIjoiMTAuNDcuMC4wIn0.aT90t145Nr7d5RfnKXCPMixrcpFFzU1M0Qr3H2lrvN1CNCD-OEoMB3m_q0utciFo5J-r7kgriBHOgt10AE7pM4J_cRVDkVZAPah6cmqAQH4Ptk79Nz5eNuTPoCNuKpF99I_yiJgVaYSrVjZ0nQTwp9YJfRSzQ9P3kYC4SjAjYQdI_AxLqCw3UD5foi-D_Yr8uSQRiLQ-KMr-lxZP74YazrP5LEDRQPDNFGRWkpTv9Oca1WpDJro9ybQLH4i33f8wqNh4w4yGefU3KaCyjrAQ-JRtXSLGSQqqmC3XeR0QbMQkBOUhnLaIbjI_T0YxhHVAUSHDI-8L-AYAM4E3zDZbkw"
+            value: "{{inputs.parameters.auth_token}}"
           - name: IUF_RELEASE_PATH
             value: "{{inputs.parameters.iuf_release_mount_path}}"
         volumeMounts:
