@@ -9,12 +9,16 @@ product streams for the HPE Cray EX system can be installed or upgraded.
 1. [Prepare for upgrade](#1-prepare-for-upgrade)
 1. [Upgrade management nodes and CSM services](#2-upgrade-management-nodes-and-csm-services)
 1. [Validate CSM health](#3-validate-csm-health)
-1. [Next topic](#4-next-topic)
+1. [Check and Update Firmware](#4-check-and-update-firmware)
+1. [Next topic](#5-next-topic)
 
 Note: If problems are encountered during the upgrade, some of the topics do have their own troubleshooting
 sections, but there is also a general troubleshooting topic.
 
 - If IMS image creation CFS jobs fail, see [Known Issue: IMS image creation failure](../troubleshooting/known_issues/ims_image_creation_failure.md) for a possible workaround.
+
+- On some systems, Ceph can begin to exhibit latency over time, and if this occurs it can eventually cause services like `slurm` and services that are backed by `etcd` clusters to exhibit slowness and possible timeouts.
+See [Known Issue: Ceph OSD latency](../troubleshooting/known_issues/ceph_osd_latency.md) for a workaround.
 
 ## 1. Prepare for upgrade
 
@@ -83,15 +87,17 @@ The upgrade is a guided process starting with [Upgrade Management Nodes and CSM 
         cray artifacts create config-data "${TARFILE}" "/root/${TARFILE}"
         ```
 
-## 4. Next topic
+## 4. Check and Update Firmware
+
+Check and update firmware if not already at the correct versions.
+Make sure the latest version of the HPE Cray EX HPC Firmware Pack (HFP) has been installed.
+Follow the procedures for updating firmware with the Firmware Actions Service (FAS) document
+[Update Firmware with FAS](../operations/firmware/Update_Firmware_with_FAS.md).
+
+## 5. Next topic
 
 After completion of the validation of CSM health, the CSM product stream has been fully upgraded and
 configured.
 Refer to the [HPE Cray EX System Software Getting Started Guide S-8000](https://www.hpe.com/support/ex-S-8000)
 on the HPE Customer Support Center
 for more information on other product streams to be upgraded and configured after CSM.
-
-> **`NOTE`** If a newer version of the HPE Cray EX HPC Firmware Pack (HFP) is available, then the next step
-is to install HFP. This will inform the Firmware Action Services (FAS) of the newest firmware
-available. Once FAS is aware that new firmware is available, then see
-[Update Firmware with FAS](../operations/firmware/Update_Firmware_with_FAS.md).
