@@ -24,21 +24,16 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: vcs-upload-content-main-steps
+  name: vcs-upload
 spec:
   entrypoint: main
-  arguments:
-    parameters:
-      - name: product_manifest
-      - name: cf_import_gitea_org
-        value: cray
-      - name: cf_import_content_hostpath
-        value: /content
-      - name: cf_import_results_hostpath
-        value: /results
   templates:
     ### Main Steps ###
     - name: main
+      inputs:
+        parameters:
+          - name: auth_token
+          - name: global_params
       steps:
         - - name: get-vcs-secrets
             template: get-vcs-secrets-template
@@ -48,6 +43,16 @@ spec:
               parameters:
                 - name: vcs_user_credentials_secret_name
                   value: "{{steps.get-vcs-secrets.outputs.parameters.secret_name}}"
+                - name: cf_import_product_name
+                  value: "{{=jsonpath(inputs.parameters.global_params, '$.product_manifest.current_product.manifest.name')}}"
+                - name: cf_import_product_version
+                  value: "{{=jsonpath(inputs.parameters.global_params, '$.product_manifest.current_product.manifest.version')}}"
+                - name: cf_import_content_hostpath # parent path + content.vcs.path from manifest
+                  value: "{{=jsonpath(inputs.parameters.global_params, '$.stage_params.process_media.current_product.parent_directory')}}/{{=jsonpath(inputs.parameters.global_params, '$.product_manifest.current_product.manifest.content.vcs.path')}}"
+                - name: cf_import_gitea_org
+                  value: cray
+                - name: cf_import_gitea_url
+                  value: "https://api-gw-service-nmn.local/vcs"
         - - name: cleanup
             template: cleanup-template
             arguments:
@@ -122,23 +127,18 @@ spec:
         parameters:
           - name: vcs_user_credentials_secret_name
           - name: cf_import_gitea_url
-            value: "https://api-gw-service-nmn.local/vcs"
           - name: cf_import_product_name
-            value: "{{=jsonpath(workflow.parameters.product_manifest, '$.current_product.manifest.name')}}"
           - name: cf_import_product_version
-            value: "{{=jsonpath(workflow.parameters.product_manifest, '$.current_product.manifest.version')}}"
           - name: cf_import_gitea_org
-            value: "{{workflow.parameters.cf_import_gitea_org}}"
-          - name: cf_import_content
-            value: /content
-          - name: cf_import_results
-            value: /results
           - name: cf_import_content_hostpath
-            value: "{{workflow.parameters.cf_import_content_hostpath}}"
-          - name: cf_import_results_hostpath
-            value: "{{workflow.parameters.cf_import_results_hostpath}}"
+      outputs:
+        parameters:
+          - name: vcs-upload-content-results
+            valueFrom:
+              path: /results/records.yaml
+            default: ""
       container:
-        image: registry.local/artifactory.algol60.net/csm-docker/unstable/cf-gitea-import:1.8.0-alpha.16_a2674cd
+        image: registry.local/artifactory.algol60.net/csm-docker/stable/cf-gitea-import:1.8.0-alpha.16_a2674cd
         command:
           - "/bin/sh"
         args: ["-c", "/opt/csm/cf-gitea-import/argo_entrypoint.sh"]
@@ -162,22 +162,22 @@ spec:
           - name: CF_IMPORT_GITEA_ORG
             value: "{{inputs.parameters.cf_import_gitea_org}}"
           - name: CF_IMPORT_CONTENT
-            value: "{{inputs.parameters.cf_import_content}}"
+            value: /content
         volumeMounts:
           - name: content
             mountPath: "{{inputs.parameters.cf_import_content}}"
           - name: results
-            mountPath: "{{inputs.parameters.cf_import_results}}"
+            mountPath: /results
           - name: certs # mount cluster certs to ca-certificates.crt for curl/http libraries
             mountPath: /etc/ssl/certs/ca-certificates.crt
             subPath: platform-ca-certs.crt
       volumes:
         - name: content
           hostPath:
-            path: "{{=jsonpath(workflow.parameters.product_manifest, '$.current_product.parent_directory')}}"
+            # /opt/cray/iuf/
+            path: "{{inputs.parameters.cf_import_content_hostpath}}"
         - name: results
-          hostPath:
-            path: RBD_MOUNT/<activity> need clarification
+          emptyDir: {}
         - name: certs
           hostPath:
             path: /etc/pki/trust/anchors
