@@ -91,10 +91,27 @@ spec:
   onExit: exit-handler
   templates:
     - name: exit-handler
-      inputs:
-        artifacts:
+      container:
+        name: "kubectl"
+        image: artifactory.algol60.net/csm-docker/stable/docker-kubectl:1.21.12
+        command:
+          - sh
+          - -c
+          - |
+            kubectl get pods -l workflows.argoproj.io/workflow=${POD_NAME%-*} \
+            --sort-by=".metadata.creationTimestamp" -o name | grep -v ${POD_NAME} \
+            | xargs -I {} -t kubectl logs {} -c main >> ${LOG_PATH}/${POD_NAME%-*}.log
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: LOG_PATH
+            value: /var/argo-logs/argo-rebuild
+        resources: {}
+        volumeMounts:
           - name: current-log
-            path: /tmp/argo-logs/current-log
+            mountPath: /var/argo-logs/argo-rebuild
             s3:
               bucket: config-data
               keyFormat: "{{workflow.namespace}}/{{workflow.name}}/{{pod.name}}"
@@ -106,15 +123,6 @@ spec:
               secretKeySecret:
                 name: config-data-s3-credentials
                 key: secret_key
-        container:
-          image: alpine:latest
-          command: [sh, -c]
-          args:
-            - |
-              cat /tmp/argo-logs/current-log
-              # this is where I would add the command to add the timestamps
-              # maybe something like
-              awk '{print "{{workflow.creationTimestamp}} - " $0}' /tmp/argo-logs/current-log
     - name: main
       dag:
         tasks:
