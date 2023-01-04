@@ -99,7 +99,7 @@ spec:
           - -c
           - |
             kubectl get pods -l workflows.argoproj.io/workflow=${POD_NAME%-*} \
-            --sort-by=".metadata.creationTimestamp" -o name | grep -v ${POD_NAME} \
+            --sort-by=".metadata.creationTimestamp" --field-selector metadata.name!=${POD_NAME} -o name \
             | xargs -I {} -t kubectl logs {} -c main >> ${LOG_PATH}/${POD_NAME%-*}.log
         env:
           - name: POD_NAME
