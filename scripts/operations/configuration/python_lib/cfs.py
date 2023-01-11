@@ -41,7 +41,7 @@ CFS_V2_SESSIONS_URL = f"{CFS_V2_BASE_URL}/sessions"
 
 class ConfigLayer(NamedTuple):
     """A layer in a CFS configuration"""
-    clone_url: str
+    cloneUrl: str
     commit: str
     name: str
     playbook: str
