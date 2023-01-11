@@ -27,7 +27,7 @@ import traceback
 
 import logging
 
-from typing import Dict, List, NamedTuple
+from typing import List, NamedTuple
 
 from . import api_requests
 from . import common
