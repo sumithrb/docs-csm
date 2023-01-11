@@ -27,7 +27,7 @@ import traceback
 
 import logging
 
-from typing import List, NamedTuple
+from typing import Dict, List
 
 from . import api_requests
 from . import common
@@ -37,14 +37,6 @@ CFS_BASE_URL = f"{api_requests.API_GW_BASE_URL}/apis/cfs"
 CFS_V2_BASE_URL = f"{CFS_BASE_URL}/v2"
 CFS_V2_CONFIGS_URL = f"{CFS_V2_BASE_URL}/configurations"
 CFS_V2_SESSIONS_URL = f"{CFS_V2_BASE_URL}/sessions"
-
-
-class ConfigLayer(NamedTuple):
-    """A layer in a CFS configuration"""
-    cloneUrl: str
-    commit: str
-    name: str
-    playbook: str
 
 
 def log_error_raise_exception(msg: str, parent_exception: Exception = None) -> None:
@@ -137,9 +129,11 @@ def get_configuration(config_name: str, expected_to_exist: bool = True) -> dict:
         log_error_raise_exception("Response from CFS has unexpected format", exc)
 
 
-def create_configuration(config_name: str, layers: List[ConfigLayer]) -> dict:
+def create_configuration(config_name: str, layers: List[Dict[str, str]]) -> dict:
     """
     Creates a CFS configuration with the specified name and layers.
+    The layers should be dictionaries with the following fields set:
+        cloneUrl, commit, name, playbook
 
     The CFS configuration is returned if successful. Otherwise an exception is raised.
     """
