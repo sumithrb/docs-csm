@@ -28,6 +28,7 @@ The install/upgrade workflow comprises the following procedures:
   - [Manual configuration of the Slingshot Fabric Manager](#manual-configuration-of-the-slingshot-fabric-manager)
   - [Perform Slingshot switch firmware updates](#perform-slingshot-switch-firmware-updates)
   - [Update management host firmware (FAS)](#update-management-host-firmware-fas)
+  - [Save image names and CFS configuration information](#save-image-names-and-cfs-configuration-information)
   - [Execute the IUF `management-nodes-rollout` stage](#execute-the-iuf-management-nodes-rollout-stage)
     - [NCN worker nodes](#ncn-worker-nodes)
     - [NCN master nodes](#ncn-master-nodes)
@@ -358,6 +359,19 @@ Refer to [Update Firmware with FAS](../../firmware/Update_Firmware_with_FAS.md) 
 Once this step has completed:
 
 - Host firmware has been updated on management nodes
+
+### Save Image Names and CFS Configuration Information
+
+Images and CFS configuration have been created in previous steps. Image names and CFS confiuration names will need to be referenced `management-nodes-rollout`, and possibly, when rebuilding nodes in the future.
+Run the following script to save this information to the file `/etc/cray/upgrade/csm/iuf/"${ACTIVITY_NAME}"/activity_images_configurations.txt`.
+    
+> Note: If this file already exists, it will be appended to instead of being overwritten. This is done so that if prepare images is run again after this point, the new image names created can be added to the file without losing the previously created image names.
+
+(`ncn-m001#`) Run script to save image names and CFS configuration names that were created for this IUF activity
+
+    ```bash
+    get_iuf_images_configurations.sh $ACTIVITY_NAME
+    ```
 
 ### Execute the IUF `management-nodes-rollout` stage
 
