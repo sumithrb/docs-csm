@@ -49,7 +49,7 @@ Output like this appears at the end of the `managed-nodes-rollout` operation:
 
 ```text
 INFO Session 9769d735-4037-4500-b008-00067b4822ad: 0% components succeeded, 100% components failed
-ERROR cfs configuration failed: {'count': 8, 'list': 'x3000c0s29b2n0,x3000c0s29b4n0,x3000c0s31b2n0,x3000c0s29b3n0,x3000c0s31b4n0,x3000c0s31b3n0,x3000c0s31b1n0,x3000c0s29b1n0'}
+WARNING cfs configuration failed (8 components): x3000c0s29b2n0,x3000c0s29b4n0,x3000c0s31b2n0,x3000c0s29b3n0,x3000c0s31b4n0,x3000c0s31b3n0,x3000c0s31b1n0,x3000c0s29b1n0
 ```
 
 From the perspective of `managed-nodes-rollout` this operation succeeded because the BOS V2 sessions completed, and IUF
