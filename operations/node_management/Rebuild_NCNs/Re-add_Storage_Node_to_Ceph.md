@@ -6,19 +6,18 @@ Use the following procedure to re-add a Ceph node to the Ceph cluster.
 
 ## Run the Ceph Join Script
 
-Watch `ceph -s` and run the `ceph_join_cluster.sh` script.
-
 1. In a separate window, log into one of the first three storage nodes (`ncn-s001`, `ncn-s002`, or `ncn-s003`) and execute the following:
 
    ```bash
    watch ceph -s
    ```
 
-1. (`ncn-s#`) **On the node being rebuilt**, execute the `ceph_join_cluster.sh` script.
+1. (`ncn-m001#`) Copy `/usr/share/doc/csm/scripts/join_ceph_cluster.sh` to **the node being rebuilt** and execute it.
 
-   ```bash
-   /srv/cray/scripts/common/join_ceph_cluster.sh
-   ```
+    ```bash
+    scp /usr/share/doc/csm/scripts/join_ceph_cluster.sh ${NODE}:/srv/cray/scripts/common/join_ceph_cluster.sh
+    ssh $NODE /srv/cray/scripts/common/join_ceph_cluster.sh
+    ```
 
    **IMPORTANT:** While watching the window running `watch ceph -s`, the health will go to a `HEALTH_WARN` state. This is expected. Most commonly, there will be an alert about "failed to probe daemons or devices" and this will clear.
 

@@ -12,9 +12,6 @@ When rebuilding a node, make sure that `/srv/cray/scripts/common/storage-ceph-cl
 
    ```bash
    NODE=ncn-s00n
-   ```
-
-   ```bash
    XNAME=$(ssh $NODE cat /etc/cray/xname)
    ```
 
@@ -50,11 +47,12 @@ When rebuilding a node, make sure that `/srv/cray/scripts/common/storage-ceph-cl
 
 Upload Ceph container images into nexus.
 
-1. (`ncn-s#`) **On the node being rebuilt**, execute the `upload_ceph_images_to_nexus.sh` script.
+1. (`ncn-m001#`) Copy `/usr/share/doc/csm/scripts/upload_ceph_images_to_nexus.sh` to **the node being rebuilt** and execute it.
 
-   ```bash
-   /srv/cray/scripts/common/upload_ceph_images_to_nexus.sh
-   ```
+    ```bash
+    scp /usr/share/doc/csm/scripts/upload_ceph_images_to_nexus.sh ${NODE}:/srv/cray/scripts/common/upload_ceph_images_to_nexus.sh
+    ssh $NODE /srv/cray/scripts/common/upload_ceph_images_to_nexus.sh
+    ```
 
 1. (`ncn-s00[1/2/3]#`) After running the script, run the following command to check for errors or completion of the `ceph orch upgrade` command run in the script.
 
