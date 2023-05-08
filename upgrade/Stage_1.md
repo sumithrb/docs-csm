@@ -54,6 +54,13 @@ For more information, see [Using the Argo UI](../operations/argo/Using_the_Argo_
 
 > If the upgrade is to a new CSM release, e.g. `CSM-1.2.0` to `CSM-1.3.0`, then you will need to run the following to upgrade Ceph. This will upgrade Ceph from `v15.2.15` to `v16.2.9`.
 
+1. (`ncn-s00[1/2/3]#`) Write `registries.conf` file on storage nodes and upload local ceph image to nexus. The storage node executing this script should be able to SSH to all other storage nodes.
+
+    ```bash
+    scp ncn-m001:/usr/share/doc/csm/scripts/write_registries_conf_upload_ceph_image.sh /usr/share/doc/csm/scripts/write_registries_conf_upload_ceph_image.sh
+    /usr/share/doc/csm/scripts/write_registries_conf_upload_ceph_image.sh
+    ```
+
 1. (`ncn-m001#`) Check that Ceph version `16.2.9` is in Nexus.
 
     ```bash
@@ -120,6 +127,7 @@ For more information, see [Using the Argo UI](../operations/argo/Using_the_Argo_
 ```bash
 scp ncn-m001:/usr/share/doc/csm/scripts/upload_ceph_images_to_nexus.sh /srv/cray/scripts/common/upload_ceph_images_to_nexus.sh
 /srv/cray/scripts/common/upload_ceph_images_to_nexus.sh
+```
 
 ## Storage node image upgrade
 
