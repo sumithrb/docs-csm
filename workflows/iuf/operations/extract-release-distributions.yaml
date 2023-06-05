@@ -26,12 +26,6 @@ kind: WorkflowTemplate
 metadata:
   name: extract-release-distributions
 spec:
-  tolerations:
-    - key: "node-role.kubernetes.io/master"
-      operator: "Exists"
-      effect: "NoSchedule"
-  nodeSelector:
-    kubernetes.io/hostname: ncn-m001
   entrypoint: main
   templates:
     - name: main

@@ -25,13 +25,6 @@ apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
   name: verify-images-and-configuration
-spec:
-  tolerations:
-    - key: "node-role.kubernetes.io/master"
-      operator: "Exists"
-      effect: "NoSchedule"
-  nodeSelector:
-    kubernetes.io/hostname: ncn-m001
   entrypoint: main
   templates:
     - name: main
@@ -72,6 +65,8 @@ spec:
               parameters:
                 - name: dryRun
                   value: "{{$.DryRun}}"
+                - name: mediaHost
+                  value: "{{=jsonpath(inputs.parameters.global_params, '$.input_params.media_host')}}"                  
                 - name: scriptContent
                   value: |
                     rebuild_workers=false

@@ -150,11 +150,6 @@ spec:
     ### Templates ###
     ## get-vcs-secrets-template ##
     - name: get-vcs-secrets-template
-      nodeSelector:
-        kubernetes.io/hostname: ncn-m001
-      tolerations:
-        - key: node-role.kubernetes.io/master
-          effect: NoSchedule
       metadata:
         annotations:
           sidecar.istio.io/inject: "false"
@@ -211,11 +206,6 @@ spec:
 
     ## gitea-update-content ##
     - name: gitea-update-content
-      nodeSelector:
-        kubernetes.io/hostname: ncn-m001
-      tolerations:
-        - key: node-role.kubernetes.io/master
-          effect: NoSchedule
       metadata:
         annotations:
           sidecar.istio.io/inject: "false"
@@ -278,11 +268,6 @@ spec:
         parameters:
           - name: vcs_user_credentials_secret_name
             value: "{{steps.get-vcs-secrets.outputs.parameters.secret_name}}"
-      nodeSelector:
-        kubernetes.io/hostname: ncn-m001
-      tolerations:
-        - key: node-role.kubernetes.io/master
-          effect: NoSchedule
       metadata:
         annotations:
           sidecar.istio.io/inject: "false"

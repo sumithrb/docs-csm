@@ -27,6 +27,8 @@ stages:
   - name: process-media
     type: global
     operations:
+      - name: extract-release-distributions-test
+        static-parameters: {} # any parameters that will be supplied statically to this operation.
       - name: extract-release-distributions
         static-parameters: {} # any parameters that will be supplied statically to this operation.
 

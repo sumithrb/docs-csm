@@ -26,12 +26,6 @@ kind: WorkflowTemplate
 metadata:
   name: management-worker-nodes-rollout
 spec:
-  tolerations:
-    - key: "node-role.kubernetes.io/master"
-      operator: "Exists"
-      effect: "NoSchedule"
-  nodeSelector:
-    kubernetes.io/hostname: ncn-m001
   entrypoint: main
   templates:
     - name: main
@@ -74,6 +68,8 @@ spec:
               parameters:
                 - name: dryRun
                   value: "{{$.DryRun}}"
+                - name: mediaHost
+                  value: "{{=jsonpath(inputs.parameters.global_params, '$.input_params.media_host')}}"
                 - name: scriptContent
                   value: |
                     prepare_images_ouput=$(echo '{{inputs.parameters.global_params}}' | jq -r '.stage_params["prepare-images"].global["prepare-management-images"]["sat-bootprep-run"].script_stdout')
@@ -111,6 +107,8 @@ spec:
               parameters:
                 - name: dryRun
                   value: "{{$.DryRun}}"
+                - name: mediaHost
+                  value: "{{=jsonpath(inputs.parameters.global_params, '$.input_params.media_host')}}"                  
                 - name: scriptContent
                   value: |
                     limit_management_nodes=$(echo '{{inputs.parameters.global_params}}' | jq -r '.input_params.limit_management_nodes[]')
@@ -213,6 +211,8 @@ spec:
               parameters:
               - name: dryRun
                 value: "{{$.DryRun}}"
+              - name: mediaHost
+                value: "{{=jsonpath(inputs.parameters.global_params, '$.input_params.media_host')}}"                
               - name: scriptContent
                 value: |
                   sets="{{inputs.parameters.sets}}"
