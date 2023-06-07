@@ -177,20 +177,59 @@ In the event that the Spire Postgres cluster must be rebuilt and the data restor
             /usr/bin/psql postgres postgres
             ```
 
-        1. (`postgres#`) Update the password for each user.
+        1. (`postgres#`) Update the password for each user to match the values found in the secrets.
 
-            For example:
+            1. Update the password for the `postgres` user.
 
-            ```console
-            ALTER USER postgres WITH PASSWORD 'ABCXYZ';
-            ALTER ROLE
-            ALTER USER service_account WITH PASSWORD 'ABC123';
-            ALTER ROLE
-            ALTER USER spire WITH PASSWORD 'XYZ123';
-            ALTER ROLE
-            ALTER USER standby WITH PASSWORD '123456';
-            ALTER ROLE
-            ```
+                ```console
+                ALTER USER postgres WITH PASSWORD 'ABCXYZ';
+                ```
+
+                Example of successful output:
+
+                ```text
+                ALTER ROLE
+                ```
+
+            1. Update the password for the `service_account` user.
+
+                ```console
+                ALTER USER service_account WITH PASSWORD 'ABC123';
+                ```
+
+                Example of successful output:
+
+                ```text
+                ALTER ROLE
+                ```
+
+            1. Update the password for the `spire` user.
+
+                ```console
+                ALTER USER spire WITH PASSWORD 'XYZ123';
+                ```
+
+                Example of successful output:
+
+                ```text
+                ALTER ROLE
+                ```
+
+            1. Update the password for the `standby` user.
+
+                ```console
+                ALTER USER standby WITH PASSWORD '123456';
+                ```
+
+                Example of successful output:
+
+                ```text
+                ALTER ROLE
+                ```
+
+        1. (`postgres#`) Exit the Postgres console with the `\q` command.
+
+        1. (`pod#`) Exit the Postgres pod with the `exit` command.
 
    * Re-create secrets in Kubernetes.
 
@@ -471,18 +510,47 @@ In the event that the Keycloak Postgres cluster must be rebuilt and the data res
             /usr/bin/psql postgres postgres
             ```
 
-        1. (`postgres#`) Update the password for each user.
+        1. (`postgres#`) Update the password for each user to match the values found in the secrets.
 
-            For example:
+            1. Update the password for the `postgres` user.
 
-            ```console
-            ALTER USER postgres WITH PASSWORD 'ABCXYZ';
-            ALTER ROLE
-            ALTER USER service_account WITH PASSWORD 'ABC123';
-            ALTER ROLE
-            ALTER USER standby WITH PASSWORD '123456';
-            ALTER ROLE
-            ```
+                ```console
+                ALTER USER postgres WITH PASSWORD 'ABCXYZ';
+                ```
+
+                Example of successful output:
+
+                ```text
+                ALTER ROLE
+                ```
+
+            1. Update the password for the `service_account` user.
+
+                ```console
+                ALTER USER service_account WITH PASSWORD 'ABC123';
+                ```
+
+                Example of successful output:
+
+                ```text
+                ALTER ROLE
+                ```
+
+            1. Update the password for the `standby` user.
+
+                ```console
+                ALTER USER standby WITH PASSWORD '123456';
+                ```
+
+                Example of successful output:
+
+                ```text
+                ALTER ROLE
+                ```
+
+        1. (`postgres#`) Exit the Postgres console with the `\q` command.
+
+        1. (`pod#`) Exit the Postgres pod with the `exit` command.
 
    * Re-create secrets in Kubernetes.
 
@@ -814,18 +882,47 @@ In the event that the VCS Postgres cluster must be rebuilt and the data restored
             /usr/bin/psql postgres postgres
             ```
 
-        1. (`postgres#`) Update the password for each user.
+        1. (`postgres#`) Update the password for each user to match the values found in the secrets.
 
-            For example:
+            1. Update the password for the `postgres` user.
 
-            ```console
-            ALTER USER postgres WITH PASSWORD 'ABCXYZ';
-            ALTER ROLE
-            ALTER USER service_account WITH PASSWORD 'ABC123';
-            ALTER ROLE
-            ALTER USER standby WITH PASSWORD '123456';
-            ALTER ROLE
-            ```
+                ```console
+                ALTER USER postgres WITH PASSWORD 'ABCXYZ';
+                ```
+
+                Example of successful output:
+
+                ```text
+                ALTER ROLE
+                ```
+
+            1. Update the password for the `service_account` user.
+
+                ```console
+                ALTER USER service_account WITH PASSWORD 'ABC123';
+                ```
+
+                Example of successful output:
+
+                ```text
+                ALTER ROLE
+                ```
+
+            1. Update the password for the `standby` user.
+
+                ```console
+                ALTER USER standby WITH PASSWORD '123456';
+                ```
+
+                Example of successful output:
+
+                ```text
+                ALTER ROLE
+                ```
+
+        1. (`postgres#`) Exit the Postgres console with the `\q` command.
+
+        1. (`pod#`) Exit the Postgres pod with the `exit` command.
 
    * Re-create secrets in Kubernetes.
 
