@@ -39,6 +39,8 @@ spec:
       dag:
         tasks:
         - name: drain
+          dependencies:
+            - set-bss-image-and-cfs-config
           templateRef:
             name: kubectl-and-curl-template
             template: shell-script
