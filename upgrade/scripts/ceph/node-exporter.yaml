@@ -1,0 +1,9 @@
+service_type: node-exporter
+service_name: node-exporter
+placement:
+  host_pattern: '*'
+extra_entrypoint_args:
+  - "--collector.textfile.directory=/host/node_exporter"
+extra_container_args:
+  - "-v"
+  - "/var/lib/node_exporter:/host/node_exporter:ro"

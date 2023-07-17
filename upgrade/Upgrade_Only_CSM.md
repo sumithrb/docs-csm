@@ -11,6 +11,7 @@ other operational tasks like the check and update of firmware on system componen
 1. [Validate CSM health](#3-validate-csm-health-during-upgrade)
 1. [Check and update firmware](#4-check-and-update-firmware)
 1. [Upgrade complete](#5-upgrade-complete)
+1. [Changes to Facilitate SMART data for ceph storage nodes](#6-changes-to-facilitate-smart-data-for-ceph-storage-nodes)
 
 Note: If problems are encountered during the upgrade, some of the topics do have their own troubleshooting
 sections, but there is also a general troubleshooting topic.
@@ -45,3 +46,29 @@ Follow the procedures for updating firmware with the Firmware Action Service (FA
 
 After completion of the validation of CSM health, the CSM product stream has been fully upgraded and
 configured.
+
+## 6. Changes to Facilitate SMART data for ceph storage nodes
+
+Follow the procedure given below for getting SMART data from ceph storage nodes -
+
+Step 1. Modify node-exporter configuration and update it as [Updated node-exporter.yaml](scripts/ceph/node-exporter.yaml).
+
+Step 2. Run ceph orch commands as follows to apply the modified node-exporter.yaml file -
+```bash
+ceph orch apply -i /tmp/node-exporter.yaml
+```
+
+Step 3. Reconfigure the node-exporter -
+```bash
+ceph orch reconfig node-exporter
+```
+
+Step 4. Redeploy node-exporter
+```bash
+ceph orch redeploy node-exporter
+```
+
+Step 5. Validate SMARTMON metrics
+```bash
+curl -s localhost:9100/metrics | grep smart | head
+```
